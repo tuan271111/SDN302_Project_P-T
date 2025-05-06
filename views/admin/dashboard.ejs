@@ -1,0 +1,254 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid mt-4">
+  <div class="row">
+    <%- include('./partials/sidebar') %>
+    
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Dashboard</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Stats Cards -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card bg-primary text-white h-100">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title">TOTAL ROOMS</h6>
+                <h2 class="mb-0"><%= stats.rooms %></h2>
+              </div>
+              <i class="fas fa-bed fa-3x opacity-50"></i>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+              <a href="/admin/rooms" class="text-white text-decoration-none">View Details</a>
+              <i class="fas fa-angle-right text-white"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card bg-success text-white h-100">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title">TOTAL BOOKINGS</h6>
+                <h2 class="mb-0"><%= stats.bookings %></h2>
+              </div>
+              <i class="fas fa-calendar-check fa-3x opacity-50"></i>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+              <a href="/admin/bookings" class="text-white text-decoration-none">View Details</a>
+              <i class="fas fa-angle-right text-white"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card bg-warning text-white h-100">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title">TOTAL USERS</h6>
+                <h2 class="mb-0"><%= stats.users %></h2>
+              </div>
+              <i class="fas fa-users fa-3x opacity-50"></i>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+              <a href="/admin/users" class="text-white text-decoration-none">View Details</a>
+              <i class="fas fa-angle-right text-white"></i>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card bg-danger text-white h-100">
+            <div class="card-body d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="card-title">PENDING SERVICES</h6>
+                <h2 class="mb-0"><%= stats.pendingServices %></h2>
+              </div>
+              <i class="fas fa-concierge-bell fa-3x opacity-50"></i>
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+              <a href="/admin/service-requests" class="text-white text-decoration-none">View Details</a>
+              <i class="fas fa-angle-right text-white"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <!-- Recent Bookings -->
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">Recent Bookings</h5>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                  <thead>
+                    <tr>
+                      <th>Guest</th>
+                      <th>Room</th>
+                      <th>Check-in</th>
+                      <th>Check-out</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (recentBookings.length === 0) { %>
+                      <tr>
+                        <td colspan="5" class="text-center">No recent bookings</td>
+                      </tr>
+                    <% } else { %>
+                      <% recentBookings.forEach(booking => { %>
+                        <tr>
+                          <td><%= booking.user.name %></td>
+                          <td><%= booking.room.roomNumber %></td>
+                          <td><%= new Date(booking.checkIn).toLocaleDateString() %></td>
+                          <td><%= new Date(booking.checkOut).toLocaleDateString() %></td>
+                          <td>
+                            <a href="/admin/bookings/<%= booking._id %>" class="btn btn-sm btn-primary">View</a>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card-footer text-center">
+              <a href="/admin/bookings" class="btn btn-sm btn-primary">View All Bookings</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Recent Service Requests -->
+        <div class="col-md-6">
+          <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+              <h5 class="mb-0">Recent Service Requests</h5>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>Room</th>
+                      <th>Guest</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% if (recentServiceRequests.length === 0) { %>
+                      <tr>
+                        <td colspan="5" class="text-center">No recent service requests</td>
+                      </tr>
+                    <% } else { %>
+                      <% recentServiceRequests.forEach(request => { %>
+                        <tr>
+                          <td>
+                            <span class="badge bg-<%= 
+                              request.type === 'cleaning' ? 'success' : 
+                              request.type === 'room-service' ? 'primary' : 
+                              request.type === 'laundry' ? 'info' : 
+                              'warning' 
+                            %>">
+                              <%= request.type.replace('-', ' ') %>
+                            </span>
+                          </td>
+                          <td><%= request.room.roomNumber %></td>
+                          <td><%= request.user.name %></td>
+                          <td>
+                            <span class="badge bg-<%= 
+                              request.status === 'pending' ? 'warning' : 
+                              request.status === 'in-progress' ? 'primary' : 
+                              request.status === 'completed' ? 'success' : 
+                              'danger' 
+                            %>">
+                              <%= request.status %>
+                            </span>
+                          </td>
+                          <td>
+                            <a href="/admin/service-requests/<%= request._id %>" class="btn btn-sm btn-primary">View</a>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    <% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card-footer text-center">
+              <a href="/admin/service-requests" class="btn btn-sm btn-danger">View All Service Requests</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Service Request Stats section -->
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+              <h5 class="mb-0">Service Request Statistics</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Total Requests</h5>
+                      <p class="card-text display-4"><%= typeof stats.totalServices !== 'undefined' ? stats.totalServices : 0 %></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Pending</h5>
+                      <p class="card-text display-4"><%= typeof stats.pendingServices !== 'undefined' ? stats.pendingServices : 0 %></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Completed</h5>
+                      <p class="card-text display-4"><%= typeof stats.completedServices !== 'undefined' ? stats.completedServices : 0 %></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                      <h5 class="card-title">Completion Rate</h5>
+                      <p class="card-text display-4">
+                        <% 
+                          const total = typeof stats.totalServices !== 'undefined' ? stats.totalServices : 0;
+                          const completed = typeof stats.completedServices !== 'undefined' ? stats.completedServices : 0;
+                          const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+                        %>
+                        <%= rate %>%
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

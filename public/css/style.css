@@ -1,0 +1,182 @@
+/* Global styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .navbar-brand {
+    font-weight: bold;
+  }
+  
+  .container {
+    flex: 1;
+  }
+  
+  /* Hero section */
+  .hero-section {
+    padding: 80px 0;
+    background-color: #e9ecef;
+    margin-bottom: 0;
+  }
+  
+  /* Room cards */
+  .room-card {
+    transition: transform 0.3s;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+  }
+  
+  .room-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .room-image {
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .room-features {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  .room-features li {
+    margin-bottom: 5px;
+  }
+  
+  .room-features i {
+    width: 20px;
+    color: #007bff;
+  }
+  
+  /* Auth forms */
+  .auth-container {
+    max-width: 500px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Admin Dashboard */
+  .admin-stats {
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    margin-bottom: 20px;
+  }
+  
+  .stats-card {
+    text-align: center;
+    padding: 15px;
+    border-radius: 5px;
+    color: white;
+  }
+  
+  .stats-card.primary {
+    background-color: #007bff;
+  }
+  
+  .stats-card.success {
+    background-color: #28a745;
+  }
+  
+  .stats-card.info {
+    background-color: #17a2b8;
+  }
+  
+  .stats-card.warning {
+    background-color: #ffc107;
+    color: #212529;
+  }
+  
+  /* Bookings */
+  .booking-card {
+    margin-bottom: 20px;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  
+  .booking-header {
+    padding: 15px;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .booking-pending {
+    background-color: #ffc107;
+    color: #212529;
+  }
+  
+  .booking-confirmed {
+    background-color: #28a745;
+  }
+  
+  .booking-cancelled {
+    background-color: #dc3545;
+  }
+  
+  .booking-completed {
+    background-color: #6c757d;
+  }
+  
+  /* Room details */
+  .amenity-badge {
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+  
+  /* Status badges */
+  .status-badge {
+    font-size: 0.8rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+  
+  /* Footer styling */
+  footer {
+    background-color: #343a40;
+    color: white;
+    margin-top: auto;
+  }
+  
+  footer a {
+    color: white;
+    text-decoration: none;
+  }
+  
+  footer a:hover {
+    color: #ccc;
+    text-decoration: underline;
+  }
+  
+  /* Search form styles */
+  .search-form {
+    background-color: rgba(255,255,255,0.9);
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 767px) {
+    .room-image {
+      height: 150px;
+    }
+    
+    .hero-section {
+      padding: 40px 0;
+    }
+    
+    .search-form {
+      padding: 15px;
+    }
+  }

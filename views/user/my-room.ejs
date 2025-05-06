@@ -1,0 +1,47 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <h1 class="mb-4">My Room Services</h1>
+  
+  <% if (typeof message !== 'undefined' && message) { %>
+    <div class="alert alert-info">
+      <h4 class="alert-heading"><%= message %></h4>
+      <p>You can browse available rooms and make a booking to access room services.</p>
+    </div>
+  <% } %>
+  
+  <% if (typeof activeBookings !== 'undefined' && activeBookings.length > 0) { %>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Available Services</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <% if (typeof services !== 'undefined' && services.length > 0) { %>
+                <% services.forEach(service => { %>
+                  <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                      <div class="card-body">
+                        <h5 class="card-title"><%= service.name %></h5>
+                        <p class="card-text">Request <%= service.name.toLowerCase() %> for your room.</p>
+                        <a href="<%= service.path %>" class="btn btn-primary">Request Service</a>
+                      </div>
+                    </div>
+                  </div>
+                <% }) %>
+              <% } else { %>
+                <div class="col-12">
+                  <div class="alert alert-info">No services available at this time.</div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

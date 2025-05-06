@@ -1,0 +1,74 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <h1 class="mb-4">Laundry Service</h1>
+  
+  <% if (typeof message !== 'undefined' && message) { %>
+    <div class="alert alert-info">
+      <h4 class="alert-heading"><%= message %></h4>
+      <p>You need an active booking to request laundry service.</p>
+    </div>
+  <% } else if (activeBookings.length > 0) { %>
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Request Laundry Service</h5>
+      </div>
+      <div class="card-body">
+        <form action="/services/laundry" method="POST">
+          <div class="form-group">
+            <label for="room">Room</label>
+            <select class="form-control" id="room" name="bookingId" required>
+              <% activeBookings.forEach(booking => { %>
+                <option value="<%= booking._id %>">
+                  <%= booking.room.name %> (Room #<%= booking.room.roomNumber %>)
+                </option>
+              <% }) %>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>Laundry Services</label>
+            <div class="list-group mb-3">
+              <% services.forEach((service, index) => { %>
+                <div class="list-group-item">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h5 class="mb-1"><%= service.name %> - $<%= service.price %></h5>
+                      <p class="mb-1"><%= service.description %></p>
+                    </div>
+                    <div class="form-group mb-0">
+                      <label for="quantity-<%= index %>" class="sr-only">Quantity</label>
+                      <input type="number" class="form-control" id="quantity-<%= index %>" name="items[<%= index %>][quantity]" min="0" value="0" style="width: 70px;">
+                      <input type="hidden" name="items[<%= index %>][name]" value="<%= service.name %>">
+                      <input type="hidden" name="items[<%= index %>][price]" value="<%= service.price %>">
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="time">Pickup Time</label>
+            <select class="form-control" id="time" name="time" required>
+              <option value="asap">As Soon As Possible</option>
+              <option value="morning">Morning (8:00 AM - 11:00 AM)</option>
+              <option value="afternoon">Afternoon (1:00 PM - 4:00 PM)</option>
+              <option value="evening">Evening (6:00 PM - 8:00 PM)</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="notes">Special Instructions</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Please specify any special handling instructions or details about your laundry items"></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Submit Request</button>
+          <a href="/users/my-room" class="btn btn-secondary">Back to My Room</a>
+        </form>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

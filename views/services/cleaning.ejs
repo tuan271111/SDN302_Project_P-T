@@ -1,0 +1,51 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <h1 class="mb-4">Room Cleaning Service</h1>
+  
+  <% if (typeof message !== 'undefined' && message) { %>
+    <div class="alert alert-info">
+      <h4 class="alert-heading"><%= message %></h4>
+      <p>You need an active booking to request room cleaning.</p>
+    </div>
+  <% } else if (activeBookings.length > 0) { %>
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Request Room Cleaning</h5>
+      </div>
+      <div class="card-body">
+        <form action="/services/cleaning" method="POST">
+          <div class="form-group">
+            <label for="room">Room</label>
+            <select class="form-control" id="room" name="bookingId" required>
+              <% activeBookings.forEach(booking => { %>
+                <option value="<%= booking._id %>">
+                  <%= booking.room.name %> (Room #<%= booking.room.roomNumber %>)
+                </option>
+              <% }) %>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="time">Preferred Time</label>
+            <select class="form-control" id="time" name="time" required>
+              <option value="morning">Morning (9:00 AM - 12:00 PM)</option>
+              <option value="afternoon">Afternoon (1:00 PM - 5:00 PM)</option>
+              <option value="evening">Evening (6:00 PM - 9:00 PM)</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="notes">Special Instructions</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary">Submit Request</button>
+          <a href="/users/my-room" class="btn btn-secondary">Back to My Room</a>
+        </form>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

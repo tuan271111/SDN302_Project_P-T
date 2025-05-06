@@ -1,0 +1,139 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">My Profile</h5>
+        </div>
+        <div class="card-body">
+          <div class="text-center mb-3">
+            <i class="fas fa-user-circle fa-5x text-muted"></i>
+          </div>
+          <h4 class="text-center mb-3"><%= user.name %></h4>
+          <div class="mb-3">
+            <strong><i class="fas fa-envelope me-2"></i>Email:</strong> <%= user.email %>
+          </div>
+          <div class="mb-3">
+            <strong><i class="fas fa-phone me-2"></i>Phone:</strong> <%= user.phone || 'Not provided' %>
+          </div>
+          <div class="mb-3">
+            <strong><i class="fas fa-map-marker-alt me-2"></i>Address:</strong> <%= user.address || 'Not provided' %>
+          </div>
+          <div class="mb-3">
+            <strong><i class="fas fa-calendar me-2"></i>Member Since:</strong> <%= new Date(user.createdAt).toLocaleDateString() %>
+          </div>
+          <div class="d-grid gap-2">
+            <a href="/users/edit-profile" class="btn btn-primary">
+              <i class="fas fa-edit me-2"></i>Edit Profile
+            </a>
+            <a href="/users/change-password" class="btn btn-secondary">
+              <i class="fas fa-key me-2"></i>Change Password
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-8">
+      <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">Recent Bookings</h5>
+        </div>
+        <div class="card-body">
+          <% if (recentBookings && recentBookings.length > 0) { %>
+            <div class="list-group">
+              <% recentBookings.forEach(booking => { %>
+                <a href="/users/my-bookings" class="list-group-item list-group-item-action">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"><%= booking.room.name %> - Room <%= booking.room.roomNumber %></h5>
+                    <small class="text-muted">
+                      <span class="badge bg-<%= 
+                        booking.status === 'confirmed' ? 'success' : 
+                        booking.status === 'pending' ? 'warning' : 
+                        booking.status === 'cancelled' ? 'danger' : 'secondary' 
+                      %>">
+                        <%= booking.status %>
+                      </span>
+                    </small>
+                  </div>
+                  <p class="mb-1">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    <%= new Date(booking.checkIn).toLocaleDateString() %> to <%= new Date(booking.checkOut).toLocaleDateString() %>
+                  </p>
+                  <small class="text-muted">
+                    <i class="fas fa-users me-2"></i>
+                    <%= booking.adults %> Adults<%= booking.children ? `, ${booking.children} Children` : '' %>
+                  </small>
+                </a>
+              <% }) %>
+            </div>
+            <div class="text-center mt-3">
+              <a href="/users/my-bookings" class="btn btn-outline-primary">View All Bookings</a>
+            </div>
+          <% } else { %>
+            <div class="alert alert-info">
+              <p class="mb-0">You don't have any bookings yet.</p>
+            </div>
+            <div class="text-center">
+              <a href="/rooms" class="btn btn-primary">Browse Rooms</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+      <% if (typeof recentServiceRequests !== 'undefined') { %>
+        <div class="card mb-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Recent Service Requests</h5>
+          </div>
+          <div class="card-body">
+            <% if (recentServiceRequests && recentServiceRequests.length > 0) { %>
+              <div class="list-group">
+                <% recentServiceRequests.forEach(request => { %>
+                  <a href="/services/history/<%= request._id %>" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1">
+                        <%= request.type.charAt(0).toUpperCase() + request.type.slice(1).replace('-', ' ') %>
+                      </h5>
+                      <small class="text-muted">
+                        <span class="badge bg-<%= 
+                          request.status === 'pending' ? 'warning' : 
+                          request.status === 'in-progress' ? 'primary' : 
+                          request.status === 'completed' ? 'success' : 'danger' 
+                        %>">
+                          <%= request.status %>
+                        </span>
+                      </small>
+                    </div>
+                    <p class="mb-1">
+                      <i class="fas fa-bed me-2"></i>
+                      Room <%= request.room.roomNumber %>
+                    </p>
+                    <small class="text-muted">
+                      <i class="fas fa-clock me-2"></i>
+                      <%= new Date(request.createdAt).toLocaleString() %>
+                    </small>
+                  </a>
+                <% }) %>
+              </div>
+              <div class="text-center mt-3">
+                <a href="/services/history" class="btn btn-outline-success">View All Service Requests</a>
+              </div>
+            <% } else { %>
+              <div class="alert alert-info">
+                <p class="mb-0">You don't have any service requests yet.</p>
+              </div>
+              <div class="text-center">
+                <a href="/users/my-room" class="btn btn-success">Request Services</a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

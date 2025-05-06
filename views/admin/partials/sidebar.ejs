@@ -1,0 +1,36 @@
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+  <div class="position-sticky pt-3">
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/dashboard' ? 'active' : '' %>" href="/admin/dashboard">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/rooms' ? 'active' : '' %>" href="/admin/rooms">
+          <i class="fas fa-bed"></i> Rooms
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/bookings' ? 'active' : '' %>" href="/admin/bookings">
+          <i class="fas fa-calendar-check"></i> Bookings
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/users' ? 'active' : '' %>" href="/admin/users">
+          <i class="fas fa-users"></i> Users
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/service-requests' ? 'active' : '' %>" href="/admin/service-requests">
+          <i class="fas fa-concierge-bell"></i> Service Requests
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/">
+          <i class="fas fa-home"></i> View Website
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

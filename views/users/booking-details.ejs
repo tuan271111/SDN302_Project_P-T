@@ -1,0 +1,18 @@
+<!-- ... existing code ... -->
+<div class="card-body">
+  <!-- Booking details here -->
+  
+  <!-- Add payment button if booking is not paid -->
+  <% if (!booking.isPaid) { %>
+    <div class="mt-4">
+      <a href="/payment/<%= booking._id %>" class="btn btn-primary btn-block">
+        <i class="fas fa-credit-card mr-2"></i> Proceed to Payment
+      </a>
+    </div>
+  <% } else { %>
+    <div class="alert alert-success mt-4">
+      <i class="fas fa-check-circle mr-2"></i> Payment completed on <%= new Date(booking.paidAt).toLocaleDateString() %>
+    </div>
+  <% } %>
+</div>
+<!-- ... existing code ... -->

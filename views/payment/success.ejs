@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card">
+        <div class="card-header bg-success text-white">
+          <h4 class="mb-0"><i class="fas fa-check-circle mr-2"></i> Payment Successful</h4>
+        </div>
+        <div class="card-body text-center">
+          <div class="mb-4">
+            <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+          </div>
+          <h5 class="mb-3">Thank you for your payment!</h5>
+          <p>Your booking has been confirmed and payment has been processed successfully.</p>
+          <p>A confirmation email has been sent to your registered email address.</p>
+          
+          <% if (typeof booking !== 'undefined') { %>
+            <div class="booking-details mt-4 text-left">
+              <h6>Booking Details:</h6>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                  <strong>Booking ID:</strong> <%= booking._id.toString().substring(0, 8) %>
+                </li>
+                <li class="list-group-item">
+                  <strong>Room:</strong> <%= booking.room.name %> (#<%= booking.room.roomNumber %>)
+                </li>
+                <li class="list-group-item">
+                  <strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %>
+                </li>
+                <li class="list-group-item">
+                  <strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %>
+                </li>
+                <li class="list-group-item">
+                  <strong>Amount Paid:</strong> $<%= booking.totalPrice %>
+                </li>
+              </ul>
+            </div>
+          <% } %>
+        </div>
+        <div class="card-footer">
+          <div class="d-flex justify-content-between">
+            <a href="/bookings/my-bookings" class="btn btn-primary">
+              <i class="fas fa-list mr-2"></i> My Bookings
+            </a>
+            <a href="/" class="btn btn-outline-secondary">
+              <i class="fas fa-home mr-2"></i> Return to Home
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

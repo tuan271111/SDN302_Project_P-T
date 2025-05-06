@@ -1,0 +1,265 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-light">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/rooms">Rooms</a></li>
+      <li class="breadcrumb-item active" aria-current="page"><%= room.name %></li>
+    </ol>
+  </nav>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card mb-4 shadow">
+        <div class="card-header bg-dark text-white">
+          <h3 class="mb-0"><%= room.name %> <span class="badge badge-light"><%= room.type.charAt(0).toUpperCase() + room.type.slice(1) %></span></h3>
+        </div>
+        <div class="card-body">
+          <!-- Room Image Gallery -->
+          <div class="mb-4">
+            <div id="roomCarousel" class="carousel slide" data-ride="carousel">
+              <div class="carousel-inner rounded">
+                <% if (room.images && room.images.length > 0) { %>
+                  <% room.images.forEach((image, index) => { %>
+                    <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                      <img src="<%= image === 'default-room.jpg' ? '/images/rooms/default-room.jpg' : 
+                                  (image.startsWith('http') ? image : `/images/rooms/${image}`) %>" 
+                           class="d-block w-100" alt="<%= room.name %>">
+                    </div>
+                  <% }) %>
+                <% } else { %>
+                  <div class="carousel-item active">
+                    <img src="public/images/rooms/default-room.jpg" class="d-block w-100" alt="<%= room.name %>">
+                  </div>
+                <% } %>
+              </div>
+              <% if (room.images && room.images.length > 1) { %>
+                <a class="carousel-control-prev" href="#roomCarousel" role="button" data-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#roomCarousel" role="button" data-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Next</span>
+                </a>
+              <% } %>
+            </div>
+          </div>
+          
+          <!-- Room Details -->
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h4 class="mb-3">Room Details</h4>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <i class="fas fa-door-closed text-primary mr-2"></i> Room Number
+                  <span class="badge badge-primary badge-pill"><%= room.roomNumber %></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <i class="fas fa-bed text-primary mr-2"></i> Type
+                  <span class="badge badge-primary badge-pill"><%= room.type.charAt(0).toUpperCase() + room.type.slice(1) %></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <i class="fas fa-dollar-sign text-primary mr-2"></i> Price per Night
+                  <span class="badge badge-primary badge-pill">$<%= room.price %></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <i class="fas fa-users text-primary mr-2"></i> Capacity
+                  <span class="badge badge-primary badge-pill"><%= room.capacity %> <%= room.capacity > 1 ? 'Guests' : 'Guest' %></span>
+                </li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h4 class="mb-3">Additional Info</h4>
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <i class="fas fa-expand text-primary mr-2"></i> Size
+                  <span class="badge badge-primary badge-pill"><%= room.size %> m²</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <i class="fas fa-building text-primary mr-2"></i> Floor
+                  <span class="badge badge-primary badge-pill"><%= room.floor %></span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <i class="fas fa-info-circle text-primary mr-2"></i> Status
+                  <% if (room.isAvailable) { %>
+                    <span class="badge badge-success">Available</span>
+                  <% } else { %>
+                    <span class="badge badge-danger">Unavailable</span>
+                  <% } %>
+                </li>
+              </ul>
+            </div>
+          </div>
+          
+          <!-- Description -->
+          <div class="mb-4">
+            <h4 class="mb-3">Description</h4>
+            <p class="lead"><%= room.description %></p>
+          </div>
+          
+          <!-- Amenities -->
+          <div class="mb-4">
+            <h4 class="mb-3">Amenities</h4>
+            <div class="d-flex flex-wrap">
+              <% if (room.amenities && room.amenities.length > 0) { %>
+                <% room.amenities.forEach(amenity => { %>
+                  <div class="amenity-badge bg-light p-2 m-1 rounded">
+                    <% let icon = 'check'; %>
+                    <% if (amenity.toLowerCase().includes('wifi')) icon = 'wifi'; %>
+                    <% if (amenity.toLowerCase().includes('tv')) icon = 'tv'; %>
+                    <% if (amenity.toLowerCase().includes('breakfast')) icon = 'coffee'; %>
+                    <% if (amenity.toLowerCase().includes('air')) icon = 'wind'; %>
+                    <% if (amenity.toLowerCase().includes('minibar')) icon = 'glass-martini'; %>
+                    <i class="fas fa-<%= icon %> text-primary mr-2"></i> <%= amenity %>
+                  </div>
+                <% }) %>
+              <% } else { %>
+                <p>No amenities listed for this room.</p>
+              <% } %>
+            </div>
+          </div>
+          
+          <!-- Room Availability Calendar -->
+          <div class="mb-4">
+            <h4 class="mb-3">Availability Calendar</h4>
+            <div id="availability-calendar" data-room-id="<%= room._id %>" class="bg-light p-3 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <!-- Booking Card -->
+      <div class="card mb-4 shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0"><i class="fas fa-calendar-check mr-2"></i> Book This Room</h4>
+        </div>
+        <div class="card-body">
+          <% if (!locals.user) { %>
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle mr-2"></i> 
+              Please <a href="/login" class="alert-link">login</a> to check availability and book this room.
+            </div>
+          <% } else if (!room.isAvailable) { %>
+            <div class="alert alert-danger">
+              <i class="fas fa-exclamation-circle mr-2"></i> 
+              Sorry, this room is currently unavailable for booking.
+            </div>
+          <% } else { %>
+            <form id="availability-form">
+              <div class="form-group">
+                <label for="checkIn"><i class="fas fa-calendar-alt mr-2"></i> Check-In Date</label>
+                <input type="date" id="checkIn" class="form-control" min="<%= new Date().toISOString().split('T')[0] %>" required>
+              </div>
+              <div class="form-group">
+                <label for="checkOut"><i class="fas fa-calendar-alt mr-2"></i> Check-Out Date</label>
+                <input type="date" id="checkOut" class="form-control" min="<%= new Date().toISOString().split('T')[0] %>" required>
+              </div>
+              <button id="checkAvailabilityBtn" type="submit" data-room-id="<%= room._id %>" class="btn btn-primary btn-block">
+                <i class="fas fa-search mr-2"></i> Check Availability
+              </button>
+            </form>
+            
+            <div id="availabilityResult" class="my-3"></div>
+            
+            <a id="bookNowBtn" href="/bookings/create/<%= room._id %>" class="btn btn-success btn-block" style="display: none;">
+              <i class="fas fa-book-open mr-2"></i> Book Now
+            </a>
+          <% } %>
+        </div>
+      </div>
+      
+      <!-- Help Card -->
+      <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+          <h4 class="mb-0"><i class="fas fa-question-circle mr-2"></i> Need Help?</h4>
+        </div>
+        <div class="card-body">
+          <p>If you have any questions about this room or need assistance with booking, please contact us:</p>
+          <ul class="list-unstyled">
+            <li class="mb-2"><i class="fas fa-phone text-primary mr-2"></i> +1 234 567 8900</li>
+            <li class="mb-2"><i class="fas fa-envelope text-primary mr-2"></i> bookings@luxuryhotel.com</li>
+            <li class="mb-2"><i class="fas fa-comment-alt text-primary mr-2"></i> Live Chat (9AM-9PM)</li>
+          </ul>
+          <div class="text-center mt-3">
+            <a href="/rooms" class="btn btn-outline-secondary">
+              <i class="fas fa-arrow-left mr-2"></i> Back to Rooms
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Include FullCalendar -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+
+<!-- Include Availability Calendar Script -->
+<script src="/js/availability-calendar.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('availability-form');
+    const checkInInput = document.getElementById('checkIn');
+    const checkOutInput = document.getElementById('checkOut');
+    const availabilityResult = document.getElementById('availabilityResult');
+    const bookNowBtn = document.getElementById('bookNowBtn');
+    const roomId = '<%= room._id %>';
+    
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const checkIn = checkInInput.value;
+        const checkOut = checkOutInput.value;
+        
+        if (!checkIn || !checkOut) {
+          availabilityResult.innerHTML = '<div class="alert alert-warning">Please select both check-in and check-out dates.</div>';
+          return;
+        }
+        
+        // Show loading indicator
+        availabilityResult.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Checking availability...</div>';
+        
+        // Call the availability API
+        fetch(`/rooms/${roomId}/check-availability`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ checkIn, checkOut })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            if (data.isAvailable) {
+              availabilityResult.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle mr-2"></i> Room is available for the selected dates!</div>';
+              
+              // Update and show book now button
+              bookNowBtn.href = `/bookings/create/${roomId}?checkIn=${checkIn}&checkOut=${checkOut}`;
+              bookNowBtn.style.display = 'block';
+            } else {
+              availabilityResult.innerHTML = '<div class="alert alert-danger"><i class="fas fa-times-circle mr-2"></i> Room is not available for the selected dates.</div>';
+              bookNowBtn.style.display = 'none';
+            }
+          } else {
+            availabilityResult.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle mr-2"></i> ${data.message}</div>`;
+            bookNowBtn.style.display = 'none';
+          }
+        })
+        .catch(error => {
+          console.error('Error checking availability:', error);
+          availabilityResult.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle mr-2"></i> Error checking availability. Please try again.</div>';
+          bookNowBtn.style.display = 'none';
+        });
+      });
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

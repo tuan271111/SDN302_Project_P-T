@@ -1,0 +1,67 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <h1 class="mb-4">My Service Requests</h1>
+  
+  <% if (serviceRequests.length === 0) { %>
+    <div class="alert alert-info">
+      <h4 class="alert-heading">No service requests found!</h4>
+      <p>You haven't made any service requests yet. You can request services for your confirmed bookings.</p>
+      <hr>
+      <p class="mb-0">
+        <a href="/bookings" class="btn btn-primary">View My Bookings</a>
+      </p>
+    </div>
+  <% } else { %>
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Your Service Requests</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="thead-light">
+              <tr>
+                <th>Room</th>
+                <th>Service</th>
+                <th>Type</th>
+                <th>Requested For</th>
+                <th>Status</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% serviceRequests.forEach(request => { %>
+                <tr>
+                  <td><%= request.room.roomNumber %></td>
+                  <td><%= request.serviceName %></td>
+                  <td>
+                    <span class="badge badge-<%= request.serviceType === 'housekeeping' ? 'info' : 'warning' %>">
+                      <%= request.serviceType.charAt(0).toUpperCase() + request.serviceType.slice(1) %>
+                    </span>
+                  </td>
+                  <td><%= new Date(request.requestedFor).toLocaleString() %></td>
+                  <td>
+                    <% let statusClass = 'secondary'; %>
+                    <% if (request.status === 'pending') statusClass = 'warning'; %>
+                    <% if (request.status === 'in-progress') statusClass = 'info'; %>
+                    <% if (request.status === 'completed') statusClass = 'success'; %>
+                    <% if (request.status === 'cancelled') statusClass = 'danger'; %>
+                    <span class="badge badge-<%= statusClass %>">
+                      <%= request.status.charAt(0).toUpperCase() + request.status.slice(1) %>
+                    </span>
+                  </td>
+                  <td><%= new Date(request.createdAt).toLocaleString() %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  
+  <a href="/bookings" class="btn btn-secondary">Back to Bookings</a>
+</div>
+
+<%- include('../partials/footer') %>

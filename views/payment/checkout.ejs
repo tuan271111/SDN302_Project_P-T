@@ -1,0 +1,53 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Payment</h4>
+        </div>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5>Booking Details</h5>
+              <p><strong>Room:</strong> <%= booking.room.name %></p>
+              <p><strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %></p>
+              <p><strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %></p>
+              <p><strong>Guests:</strong> <%= booking.guests.adults %> Adults, <%= booking.guests.children %> Children</p>
+            </div>
+            <div class="col-md-6">
+              <h5>Payment Summary</h5>
+              <p><strong>Room Price:</strong> $<%= booking.room.price %> per night</p>
+              <p><strong>Number of Nights:</strong> <%= Math.ceil((new Date(booking.checkOut) - new Date(booking.checkIn)) / (1000 * 60 * 60 * 24)) %></p>
+              <p><strong>Total Amount:</strong> $<%= booking.totalPrice.toFixed(2) %></p>
+            </div>
+          </div>
+          
+          <hr>
+          
+          <h5 class="mb-3">Select Payment Method</h5>
+          
+          <!-- Demo Payment Option -->
+          <div class="row">
+            <div class="col-md-12 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <h6 class="card-title">Demo Payment</h6>
+                  <p class="card-text">Simulate a successful payment for testing purposes.</p>
+                  <form action="/payment/process" method="POST">
+                    <input type="hidden" name="bookingId" value="<%= booking._id %>">
+                    <input type="hidden" name="paymentMethod" value="demo_payment">
+                    <button type="submit" class="btn btn-success btn-lg btn-block">Pay Now (Demo)</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

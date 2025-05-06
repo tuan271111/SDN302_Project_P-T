@@ -1,0 +1,219 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb bg-light">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item"><a href="/bookings">My Bookings</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Request Service</li>
+    </ol>
+  </nav>
+
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Request Service for Room <%= booking.room.roomNumber %></h4>
+    </div>
+    <div class="card-body">
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <h5>Booking Details</h5>
+          <p><strong>Room:</strong> <%= booking.room.name %> (#<%= booking.room.roomNumber %>)</p>
+          <p><strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %></p>
+          <p><strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %></p>
+        </div>
+      </div>
+
+      <form action="/services/request/<%= booking._id %>" method="POST" id="serviceRequestForm">
+        <div class="form-group">
+          <label for="serviceType">Service Type</label>
+          <select id="serviceType" name="serviceType" class="form-control" required>
+            <option value="">Select Service Type</option>
+            <option value="housekeeping">Housekeeping</option>
+            <option value="maintenance">Maintenance</option>
+          </select>
+          <div class="invalid-feedback">Please select a service type</div>
+        </div>
+
+        <div class="form-group">
+          <label for="serviceName">Service</label>
+          <select id="serviceName" name="serviceName" class="form-control" required disabled>
+            <option value="">Select Service Type First</option>
+          </select>
+          <div class="invalid-feedback">Please select a service</div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <input type="text" id="description" name="description" class="form-control" readonly required>
+        </div>
+
+        <div class="form-group">
+          <label for="additionalNotes">Additional Notes</label>
+          <textarea id="additionalNotes" name="additionalNotes" class="form-control" rows="3" placeholder="Any specific details or requests..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="requestedFor">Requested For</label>
+          <input type="datetime-local" id="requestedFor" name="requestedFor" class="form-control" required>
+          <small class="form-text text-muted">Service must be scheduled between check-in and check-out dates</small>
+          <div class="invalid-feedback">Please select a valid date and time</div>
+        </div>
+
+        <div class="form-group mt-4">
+          <button type="submit" class="btn btn-primary" id="submitBtn">Submit Request</button>
+          <a href="/bookings" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Service data - ensure it's properly parsed
+  const services = JSON.parse('<%- JSON.stringify(services || {}) %>');
+  
+  // Pre-selected values (if any)
+  const preSelectedType = '<%= typeof preSelectedType !== "undefined" ? preSelectedType : "" %>';
+  const preSelectedService = '<%= typeof preSelectedService !== "undefined" ? preSelectedService : "" %>';
+  
+  // DOM elements
+  const serviceTypeSelect = document.getElementById('serviceType');
+  const serviceNameSelect = document.getElementById('serviceName');
+  const descriptionInput = document.getElementById('description');
+  const requestedForInput = document.getElementById('requestedFor');
+  const form = document.getElementById('serviceRequestForm');
+  const submitBtn = document.getElementById('submitBtn');
+  
+  // Booking dates
+  const checkInDate = new Date('<%= booking.checkIn %>');
+  const checkOutDate = new Date('<%= booking.checkOut %>');
+  
+  // Event listeners
+  serviceTypeSelect.addEventListener('change', updateServiceOptions);
+  serviceNameSelect.addEventListener('change', updateServiceDescription);
+  form.addEventListener('submit', validateForm);
+  
+  // Functions
+  function updateServiceOptions() {
+    const selectedType = serviceTypeSelect.value;
+    
+    // Clear and disable service select if no type selected
+    if (!selectedType) {
+      serviceNameSelect.innerHTML = '<option value="">Select Service Type First</option>';
+      serviceNameSelect.disabled = true;
+      descriptionInput.value = '';
+      return;
+    }
+    
+    // Enable service select and populate options
+    serviceNameSelect.disabled = false;
+    serviceNameSelect.innerHTML = '<option value="">Select Service</option>';
+    
+    if (!services[selectedType] || services[selectedType].length === 0) {
+      serviceNameSelect.innerHTML = '<option value="">No services available</option>';
+      serviceNameSelect.disabled = true;
+      return;
+    }
+    
+    services[selectedType].forEach(service => {
+      const option = document.createElement('option');
+      option.value = service.name;
+      option.textContent = service.name;
+      serviceNameSelect.appendChild(option);
+    });
+    
+    // If there's a pre-selected service and it matches the current type, select it
+    if (preSelectedService && selectedType === preSelectedType) {
+      serviceNameSelect.value = preSelectedService;
+      updateServiceDescription();
+    }
+  }
+  
+  function updateServiceDescription() {
+    const selectedType = serviceTypeSelect.value;
+    const selectedName = serviceNameSelect.value;
+    
+    if (!selectedType || !selectedName) {
+      descriptionInput.value = '';
+      return;
+    }
+    
+    const selectedService = services[selectedType].find(service => service.name === selectedName);
+    if (selectedService) {
+      descriptionInput.value = selectedService.description;
+    }
+  }
+  
+  function validateForm(e) {
+    let isValid = true;
+    
+    // Reset validation
+    const invalidInputs = form.querySelectorAll('.is-invalid');
+    invalidInputs.forEach(input => input.classList.remove('is-invalid'));
+    
+    // Validate service type
+    if (!serviceTypeSelect.value) {
+      serviceTypeSelect.classList.add('is-invalid');
+      isValid = false;
+    }
+    
+    // Validate service name
+    if (!serviceNameSelect.value) {
+      serviceNameSelect.classList.add('is-invalid');
+      isValid = false;
+    }
+    
+    // Validate requested date
+    const requestedDate = new Date(requestedForInput.value);
+    
+    if (!requestedForInput.value || isNaN(requestedDate)) {
+      requestedForInput.classList.add('is-invalid');
+      isValid = false;
+    } else {
+      // Check if date is between check-in and check-out
+      if (requestedDate < checkInDate || requestedDate > checkOutDate) {
+        requestedForInput.classList.add('is-invalid');
+        requestedForInput.nextElementSibling.nextElementSibling.textContent = 
+          'Service must be scheduled between check-in and check-out dates';
+        isValid = false;
+      }
+      
+      // Check if date is in the past
+      const now = new Date();
+      if (requestedDate < now) {
+        requestedForInput.classList.add('is-invalid');
+        requestedForInput.nextElementSibling.nextElementSibling.textContent = 
+          'Service cannot be scheduled in the past';
+        isValid = false;
+      }
+    }
+    
+    if (!isValid) {
+      e.preventDefault();
+    } else {
+      // Disable submit button to prevent double submission
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+    }
+  }
+  
+  // Initialize with pre-selected values if available
+  if (preSelectedType) {
+    serviceTypeSelect.value = preSelectedType;
+    updateServiceOptions();
+  }
+  
+  // Set min/max datetime for requestedFor
+  const now = new Date();
+  const minDate = now > checkInDate ? now : checkInDate;
+  
+  // Format dates for datetime-local input (YYYY-MM-DDThh:mm)
+  function formatDateForInput(date) {
+    return date.toISOString().slice(0, 16);
+  }
+  
+  requestedForInput.min = formatDateForInput(minDate);
+  requestedForInput.max = formatDateForInput(checkOutDate);
+</script>
+
+<%- include('../partials/footer') %>

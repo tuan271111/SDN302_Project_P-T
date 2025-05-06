@@ -1,0 +1,383 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid mt-4">
+  <div class="row">
+    <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+      <div class="position-sticky pt-3">
+        <ul class="nav flex-column">
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/admin/dashboard' ? 'active' : '' %>" href="/admin/dashboard">
+              <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/admin/rooms' ? 'active' : '' %>" href="/admin/rooms">
+              <i class="fas fa-bed"></i> Rooms
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/admin/bookings' ? 'active' : '' %>" href="/admin/bookings">
+              <i class="fas fa-calendar-check"></i> Bookings
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/admin/users' ? 'active' : '' %>" href="/admin/users">
+              <i class="fas fa-users"></i> Users
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link <%= path === '/admin/service-requests' ? 'active' : '' %>" href="/admin/service-requests">
+              <i class="fas fa-concierge-bell"></i> Service Requests
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Service Requests</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="exportBtn">
+              <i class="fas fa-download"></i> Export
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="printBtn">
+              <i class="fas fa-print"></i> Print
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mb-4">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-outline-primary active" id="all-btn">All</button>
+              <button type="button" class="btn btn-outline-primary" id="room-service-btn">Room Service</button>
+              <button type="button" class="btn btn-outline-primary" id="laundry-btn">Laundry</button>
+              <button type="button" class="btn btn-outline-primary" id="maintenance-btn">Maintenance</button>
+              <button type="button" class="btn btn-outline-primary" id="cleaning-btn">Cleaning</button>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="input-group">
+              <input type="text" class="form-control" id="searchInput" placeholder="Search by room, guest name, or ID...">
+              <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Total Requests</h5>
+              <p class="card-text display-4"><%= serviceRequests.length %></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Pending</h5>
+              <p class="card-text display-4"><%= serviceRequests.filter(req => req.status === 'pending').length %></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+              <h5 class="card-title">In Progress</h5>
+              <p class="card-text display-4"><%= serviceRequests.filter(req => req.status === 'in-progress').length %></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Completed</h5>
+              <p class="card-text display-4"><%= serviceRequests.filter(req => req.status === 'completed').length %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Type</th>
+              <th>Room</th>
+              <th>Guest</th>
+              <th>Details</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (serviceRequests.length === 0) { %>
+              <tr>
+                <td colspan="8" class="text-center">No service requests found</td>
+              </tr>
+            <% } else { %>
+              <% serviceRequests.forEach(request => { %>
+                <tr class="service-row <%= request.type %>-row">
+                  <td><%= request._id.toString().substring(0, 8) %>...</td>
+                  <td>
+                    <span class="badge bg-<%= 
+                      request.type === 'cleaning' ? 'success' : 
+                      request.type === 'room-service' ? 'primary' : 
+                      request.type === 'laundry' ? 'info' : 
+                      'warning' 
+                    %>">
+                      <%= request.type.replace('-', ' ') %>
+                    </span>
+                  </td>
+                  <td><%= request.room.roomNumber %></td>
+                  <td><%= request.user.name %></td>
+                  <td>
+                    <% if (request.type === 'room-service' && request.requestDetails.items && request.requestDetails.items.length > 0) { %>
+                      <% let orderTotal = 0; %>
+                      <% request.requestDetails.items.forEach(item => { %>
+                        <% orderTotal += item.quantity * item.price; %>
+                      <% }); %>
+                      <strong><%= request.requestDetails.items.length %> items</strong>
+                      <div class="small text-muted">
+                        <% request.requestDetails.items.slice(0, 2).forEach(item => { %>
+                          <%= item.quantity %>x <%= item.name %><br>
+                        <% }); %>
+                        <% if (request.requestDetails.items.length > 2) { %>
+                          <em>and <%= request.requestDetails.items.length - 2 %> more...</em>
+                        <% } %>
+                      </div>
+                      <div class="mt-1"><strong>Total: $<%= orderTotal.toFixed(2) %></strong></div>
+                    <% } else if (request.type === 'laundry' && request.requestDetails.items) { %>
+                      <strong><%= request.requestDetails.items.length %> items</strong>
+                      <div class="small text-muted">
+                        <% let totalItems = 0; %>
+                        <% request.requestDetails.items.forEach(item => { totalItems += item.quantity; }); %>
+                        <%= totalItems %> pieces total
+                      </div>
+                    <% } else if (request.type === 'maintenance') { %>
+                      <strong><%= request.requestDetails.issueType || 'Maintenance' %></strong>
+                      <div class="small text-muted">
+                        Urgency: <%= request.requestDetails.urgency || 'Normal' %>
+                      </div>
+                    <% } else if (request.type === 'cleaning') { %>
+                      <strong><%= request.requestDetails.cleaningType || 'Standard Cleaning' %></strong>
+                      <div class="small text-muted">
+                        <%= request.requestDetails.time || 'ASAP' %>
+                      </div>
+                    <% } else { %>
+                      <em>Click for details</em>
+                    <% } %>
+                  </td>
+                  <td>
+                    <span class="badge bg-<%= 
+                      request.status === 'pending' ? 'warning' : 
+                      request.status === 'in-progress' ? 'primary' : 
+                      request.status === 'completed' ? 'success' : 
+                      'danger' 
+                    %>">
+                      <%= request.status %>
+                    </span>
+                  </td>
+                  <td><%= new Date(request.createdAt).toLocaleString() %></td>
+                  <td>
+                    <div class="btn-group">
+                      <!-- Make sure this link exists in your table row -->
+                      <a href="/admin/service-requests/<%= request._id %>" class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye"></i>
+                      </a>
+                      <button type="button" class="btn btn-sm btn-success update-status-btn" 
+                              data-bs-toggle="modal" 
+                              data-bs-target="#updateStatusModal" 
+                              data-id="<%= request._id %>"
+                              data-current-status="<%= request.status %>">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateStatusModalLabel">Update Service Request Status</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="updateStatusForm" action="/admin/service-requests/update-status" method="POST">
+        <div class="modal-body">
+          <input type="hidden" id="requestId" name="requestId">
+          
+          <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status" name="status" required>
+              <option value="pending">Pending</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          
+          <div class="mb-3">
+            <label for="staffNote" class="form-label">Staff Note</label>
+            <textarea class="form-control" id="staffNote" name="staffNote" rows="3" placeholder="Add a note about this status update"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Filter buttons
+    const allBtn = document.getElementById('all-btn');
+    const roomServiceBtn = document.getElementById('room-service-btn');
+    const laundryBtn = document.getElementById('laundry-btn');
+    const maintenanceBtn = document.getElementById('maintenance-btn');
+    const cleaningBtn = document.getElementById('cleaning-btn');
+    
+    const serviceRows = document.querySelectorAll('.service-row');
+    
+    allBtn.addEventListener('click', function() {
+      setActiveButton(allBtn);
+      serviceRows.forEach(row => row.style.display = '');
+    });
+    
+    roomServiceBtn.addEventListener('click', function() {
+      setActiveButton(roomServiceBtn);
+      filterRows('room-service');
+    });
+    
+    laundryBtn.addEventListener('click', function() {
+      setActiveButton(laundryBtn);
+      filterRows('laundry');
+    });
+    
+    maintenanceBtn.addEventListener('click', function() {
+      setActiveButton(maintenanceBtn);
+      filterRows('maintenance');
+    });
+    
+    cleaningBtn.addEventListener('click', function() {
+      setActiveButton(cleaningBtn);
+      filterRows('cleaning');
+    });
+    
+    function setActiveButton(activeBtn) {
+      [allBtn, roomServiceBtn, laundryBtn, maintenanceBtn, cleaningBtn].forEach(btn => {
+        btn.classList.remove('active');
+      });
+      activeBtn.classList.add('active');
+    }
+    
+    function filterRows(type) {
+      serviceRows.forEach(row => {
+        if (row.classList.contains(`${type}-row`)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    
+    function performSearch() {
+      const searchTerm = searchInput.value.toLowerCase();
+      
+      serviceRows.forEach(row => {
+        const rowText = row.textContent.toLowerCase();
+        if (rowText.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+    
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        performSearch();
+      }
+    });
+    
+    // Update status modal
+    const updateStatusBtns = document.querySelectorAll('.update-status-btn');
+    const requestIdInput = document.getElementById('requestId');
+    const statusSelect = document.getElementById('status');
+    
+    updateStatusBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const requestId = this.getAttribute('data-id');
+        const currentStatus = this.getAttribute('data-current-status');
+        
+        requestIdInput.value = requestId;
+        statusSelect.value = currentStatus;
+      });
+    });
+    
+    // Export functionality
+    document.getElementById('exportBtn').addEventListener('click', function() {
+      // Create CSV content
+      let csvContent = "ID,Type,Room,Guest,Details,Status,Created\n";
+      
+      serviceRows.forEach(row => {
+        if (row.style.display !== 'none') {
+          const cells = row.querySelectorAll('td');
+          const rowData = [
+            cells[0].textContent.trim(),
+            cells[1].textContent.trim(),
+            cells[2].textContent.trim(),
+            cells[3].textContent.trim(),
+            cells[4].textContent.trim().replace(/\n/g, ' '),
+            cells[5].textContent.trim(),
+            cells[6].textContent.trim()
+          ];
+          csvContent += rowData.join(',') + "\n";
+        }
+      });
+      
+      // Create download link
+      const encodedUri = encodeURI('data:text/csv;charset=utf-8,' + csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', 'service_requests.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+    
+    // Print functionality
+    document.getElementById('printBtn').addEventListener('click', function() {
+      window.print();
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,450 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Service Request Details</h1>
+    <a href="/services/history" class="btn btn-outline-secondary">
+      <i class="fas fa-arrow-left"></i> Back to Service History
+    </a>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Request Information</h5>
+          <span class="badge bg-<%= 
+            serviceRequest.status === 'pending' ? 'warning' : 
+            serviceRequest.status === 'in-progress' ? 'info' : 
+            serviceRequest.status === 'completed' ? 'success' : 
+            'danger' 
+          %> fs-6">
+            <%= serviceRequest.status.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) %>
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <strong>Request ID:</strong> 
+              <span class="text-muted"><%= serviceRequest._id %></span>
+            </div>
+            <div class="col-md-6">
+              <strong>Service Type:</strong> 
+              <span class="badge bg-<%= 
+                serviceRequest.type === 'cleaning' ? 'success' : 
+                serviceRequest.type === 'room-service' ? 'primary' : 
+                serviceRequest.type === 'laundry' ? 'info' : 
+                'warning' 
+              %>">
+                <%= serviceRequest.type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) %>
+              </span>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <strong>Requested Time:</strong> 
+              <span class="text-muted"><%= serviceRequest.requestDetails.time || 'As soon as possible' %></span>
+            </div>
+            <div class="col-md-6">
+              <strong>Room Number:</strong> 
+              <span class="text-muted"><%= serviceRequest.room.roomNumber %></span>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <strong>Created:</strong> 
+              <span class="text-muted"><%= moment(serviceRequest.createdAt).format('MMMM D, YYYY h:mm A') %></span>
+            </div>
+            <div class="col-md-6">
+              <strong>Last Updated:</strong> 
+              <span class="text-muted"><%= moment(serviceRequest.updatedAt).format('MMMM D, YYYY h:mm A') %></span>
+            </div>
+          </div>
+          
+          <% if (serviceRequest.completedAt) { %>
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <strong>Completed:</strong> 
+                <span class="text-muted"><%= moment(serviceRequest.completedAt).format('MMMM D, YYYY h:mm A') %></span>
+              </div>
+            </div>
+          <% } %>
+          
+          <% if (serviceRequest.requestDetails.notes) { %>
+            <div class="mb-3">
+              <strong>Special Instructions:</strong>
+              <p class="mt-2 p-3 bg-light rounded"><%= serviceRequest.requestDetails.notes %></p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+      <!-- Service Type Specific Details -->
+      <% if (serviceRequest.type === 'room-service' && serviceRequest.requestDetails.items && serviceRequest.requestDetails.items.length > 0) { %>
+        <div class="card mb-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Ordered Items</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% let orderTotal = 0; %>
+                  <% serviceRequest.requestDetails.items.forEach(item => { %>
+                    <% const price = Number(item.price || 0); %>
+                    <% const itemTotal = item.quantity * price; %>
+                    <% orderTotal += itemTotal; %>
+                    <tr>
+                      <td><%= item.name %></td>
+                      <td><%= item.quantity %></td>
+                      <td>$<%= price.toFixed(2) %></td>
+                      <td>$<%= itemTotal.toFixed(2) %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+                <tfoot>
+                  <tr class="table-dark">
+                    <th colspan="3" class="text-end">Order Total:</th>
+                    <th>$<%= orderTotal.toFixed(2) %></th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      <% } %>
+      
+      <% if (serviceRequest.type === 'maintenance') { %>
+        <div class="card mb-4">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">Maintenance Details</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <strong>Issue Type:</strong> 
+                <span class="text-muted"><%= serviceRequest.requestDetails.issueType %></span>
+              </div>
+              <div class="col-md-6">
+                <strong>Urgency:</strong> 
+                <span class="badge bg-<%= 
+                  serviceRequest.requestDetails.urgency === 'low' ? 'success' : 
+                  serviceRequest.requestDetails.urgency === 'medium' ? 'warning' : 
+                  'danger' 
+                %>">
+                  <%= serviceRequest.requestDetails.urgency.toUpperCase() %>
+                </span>
+              </div>
+            </div>
+            
+            <% if (serviceRequest.requestDetails.description) { %>
+              <div class="mb-3">
+                <strong>Issue Description:</strong>
+                <p class="mt-2 p-3 bg-light rounded"><%= serviceRequest.requestDetails.description %></p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+      
+      <% if (serviceRequest.type === 'laundry' && serviceRequest.requestDetails.items) { %>
+        <div class="card mb-4">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Laundry Details</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <strong>Service Type:</strong> 
+                <span class="text-muted"><%= serviceRequest.requestDetails.serviceType || 'Standard' %></span>
+              </div>
+              <div class="col-md-6">
+                <strong>Items Count:</strong> 
+                <span class="text-muted"><%= serviceRequest.requestDetails.items.length %> items</span>
+              </div>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Item Type</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Special Instructions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% let laundryTotal = 0; %>
+                  <% serviceRequest.requestDetails.items.forEach(item => { %>
+                    <% const price = Number(item.price || 0); %>
+                    <% const itemTotal = item.quantity * price; %>
+                    <% laundryTotal += itemTotal; %>
+                    <tr>
+                      <td><%= item.type %></td>
+                      <td><%= item.quantity %></td>
+                      <td>$<%= price.toFixed(2) %></td>
+                      <td>$<%= itemTotal.toFixed(2) %></td>
+                      <td><%= item.instructions || 'None' %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+                <tfoot>
+                  <tr class="table-dark">
+                    <th colspan="3" class="text-end">Laundry Total:</th>
+                    <th>$<%= laundryTotal.toFixed(2) %></th>
+                    <th></th>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      <% } %>
+      
+      <% if (serviceRequest.type === 'cleaning') { %>
+        <div class="card mb-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Cleaning Service Details</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <strong>Service Type:</strong> 
+                <span class="text-muted"><%= serviceRequest.requestDetails.cleaningType || 'Standard Cleaning' %></span>
+              </div>
+              <div class="col-md-6">
+                <strong>Requested Time:</strong> 
+                <span class="text-muted"><%= serviceRequest.requestDetails.time || 'As soon as possible' %></span>
+              </div>
+            </div>
+            
+            <% if (serviceRequest.requestDetails.specialRequests) { %>
+              <div class="mb-3">
+                <strong>Special Requests:</strong>
+                <p class="mt-2 p-3 bg-light rounded"><%= serviceRequest.requestDetails.specialRequests %></p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+    
+    <div class="col-md-4">
+      <!-- Status Timeline -->
+      <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="mb-0">Request Timeline</h5>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <i class="fas fa-plus-circle text-success me-2"></i>
+                <strong>Request Created</strong>
+                <div class="text-muted small"><%= moment(serviceRequest.createdAt).format('MMM D, YYYY h:mm A') %></div>
+              </div>
+              <span class="badge bg-success rounded-pill">
+                <i class="fas fa-check"></i>
+              </span>
+            </li>
+            
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <i class="fas fa-clock text-warning me-2"></i>
+                <strong>Processing</strong>
+                <div class="text-muted small">
+                  <% if (serviceRequest.status === 'pending') { %>
+                    Waiting for staff to process
+                  <% } else { %>
+                    Processed
+                  <% } %>
+                </div>
+              </div>
+              <span class="badge bg-<%= serviceRequest.status !== 'pending' ? 'success' : 'secondary' %> rounded-pill">
+                <i class="fas <%= serviceRequest.status !== 'pending' ? 'fa-check' : 'fa-hourglass' %>"></i>
+              </span>
+            </li>
+            
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <i class="fas fa-tools text-primary me-2"></i>
+                <strong>In Progress</strong>
+                <div class="text-muted small">
+                  <% if (serviceRequest.status === 'in-progress') { %>
+                    Staff is working on your request
+                  <% } else if (serviceRequest.status === 'completed') { %>
+                    Completed
+                  <% } else { %>
+                    Not started yet
+                  <% } %>
+                </div>
+              </div>
+              <span class="badge bg-<%= serviceRequest.status === 'in-progress' || serviceRequest.status === 'completed' ? 'success' : 'secondary' %> rounded-pill">
+                <i class="fas <%= serviceRequest.status === 'in-progress' || serviceRequest.status === 'completed' ? 'fa-check' : 'fa-hourglass' %>"></i>
+              </span>
+            </li>
+            
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <i class="fas fa-flag-checkered text-success me-2"></i>
+                <strong>Completed</strong>
+                <div class="text-muted small">
+                  <% if (serviceRequest.status === 'completed') { %>
+                    <%= moment(serviceRequest.completedAt).format('MMM D, YYYY h:mm A') %>
+                  <% } else { %>
+                    Not completed yet
+                  <% } %>
+                </div>
+              </div>
+              <span class="badge bg-<%= serviceRequest.status === 'completed' ? 'success' : 'secondary' %> rounded-pill">
+                <i class="fas <%= serviceRequest.status === 'completed' ? 'fa-check' : 'fa-hourglass' %>"></i>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Staff Notes Section -->
+      <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+          <h5 class="mb-0">Staff Notes</h5>
+        </div>
+        <div class="card-body">
+          <% if (serviceRequest.staffNotes && serviceRequest.staffNotes.length > 0) { %>
+            <div class="timeline">
+              <% serviceRequest.staffNotes.forEach((note, index) => { %>
+                <div class="timeline-item">
+                  <div class="timeline-item-content">
+                    <div class="d-flex justify-content-between">
+                      <strong><%= note.staffName %></strong>
+                      <small class="text-muted"><%= moment(note.createdAt).format('MMM D, h:mm A') %></small>
+                    </div>
+                    <p class="mt-2 mb-0"><%= note.text %></p>
+                    <span class="circle"></span>
+                  </div>
+                </div>
+              <% }); %>
+            </div>
+          <% } else { %>
+            <div class="alert alert-info mb-0">
+              <i class="fas fa-info-circle me-2"></i> No staff notes have been added yet.
+            </div>
+          <% } %>
+        </div>
+      </div>
+      
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-header bg-dark text-white">
+          <h5 class="mb-0">Quick Actions</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <a href="/services" class="btn btn-primary">
+              <i class="fas fa-concierge-bell me-2"></i> Request New Service
+            </a>
+            <a href="/users/my-room" class="btn btn-success">
+              <i class="fas fa-bed me-2"></i> Go to My Room
+            </a>
+            <% if (serviceRequest.status === 'pending') { %>
+              <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                <i class="fas fa-times-circle me-2"></i> Cancel Request
+              </button>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel Modal -->
+<% if (serviceRequest.status === 'pending') { %>
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="cancelModalLabel">Cancel Service Request</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to cancel this service request?</p>
+        <p><strong>This action cannot be undone.</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <form action="/services/cancel/<%= serviceRequest._id %>?_method=PUT" method="POST">
+          <button type="submit" class="btn btn-danger">Cancel Request</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<% } %>
+
+<!-- Add this CSS for the timeline -->
+<style>
+  .timeline {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .timeline-item {
+    position: relative;
+    margin-left: 20px;
+    padding-bottom: 15px;
+  }
+  
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+  
+  .timeline-item-content {
+    position: relative;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #17a2b8;
+  }
+  
+  .timeline-item-content::after {
+    content: '';
+    display: block;
+    clear: both;
+  }
+  
+  .circle {
+    background-color: #17a2b8;
+    border: 3px solid white;
+    border-radius: 50%;
+    position: absolute;
+    top: 15px;
+    left: -29px;
+    width: 16px;
+    height: 16px;
+  }
+  
+  .timeline::before {
+    content: '';
+    background-color: #e9ecef;
+    width: 2px;
+    height: 100%;
+    position: absolute;
+    left: 10px;
+    top: 0;
+  }
+</style>
+
+<%- include('../partials/footer') %>

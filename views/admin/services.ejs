@@ -1,0 +1,144 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <h1 class="mb-4">Manage Service Requests</h1>
+  
+  <!-- Filter Form -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Filter Service Requests</h5>
+    </div>
+    <div class="card-body">
+      <form action="/admin/services" method="GET" class="row">
+        <div class="col-md-5">
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-control">
+              <option value="all" <%= currentStatus === 'all' ? 'selected' : '' %>>All Statuses</option>
+              <option value="pending" <%= currentStatus === 'pending' ? 'selected' : '' %>>Pending</option>
+              <option value="in-progress" <%= currentStatus === 'in-progress' ? 'selected' : '' %>>In Progress</option>
+              <option value="completed" <%= currentStatus === 'completed' ? 'selected' : '' %>>Completed</option>
+              <option value="cancelled" <%= currentStatus === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-5">
+          <div class="form-group">
+            <label for="type">Service Type</label>
+            <select id="type" name="type" class="form-control">
+              <option value="all" <%= currentType === 'all' ? 'selected' : '' %>>All Types</option>
+              <option value="housekeeping" <%= currentType === 'housekeeping' ? 'selected' : '' %>>Housekeeping</option>
+              <option value="maintenance" <%= currentType === 'maintenance' ? 'selected' : '' %>>Maintenance</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary btn-block">Filter</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <% if (serviceRequests.length === 0) { %>
+    <div class="alert alert-info">
+      <h4 class="alert-heading">No service requests found!</h4>
+      <p>There are no service requests matching your filter criteria.</p>
+    </div>
+  <% } else { %>
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Service Requests</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="thead-light">
+              <tr>
+                <th>Room</th>
+                <th>Guest</th>
+                <th>Service</th>
+                <th>Type</th>
+                <th>Requested For</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% serviceRequests.forEach(request => { %>
+                <tr>
+                  <td><%= request.room.roomNumber %></td>
+                  <td><%= request.user.name %></td>
+                  <td><%= request.serviceName %></td>
+                  <td>
+                    <span class="badge badge-<%= request.serviceType === 'housekeeping' ? 'info' : 'warning' %>">
+                      <%= request.serviceType.charAt(0).toUpperCase() + request.serviceType.slice(1) %>
+                    </span>
+                  </td>
+                  <td><%= new Date(request.requestedFor).toLocaleString() %></td>
+                  <td>
+                    <% let statusClass = 'secondary'; %>
+                    <% if (request.status === 'pending') statusClass = 'warning'; %>
+                    <% if (request.status === 'in-progress') statusClass = 'info'; %>
+                    <% if (request.status === 'completed') statusClass = 'success'; %>
+                    <% if (request.status === 'cancelled') statusClass = 'danger'; %>
+                    <span class="badge badge-<%= statusClass %>">
+                      <%= request.status.charAt(0).toUpperCase() + request.status.slice(1) %>
+                    </span>
+                  </td>
+                  <td><%= new Date(request.createdAt).toLocaleString() %></td>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#updateStatusModal<%= request._id %>">
+                      Update
+                    </button>
+                    
+                    <!-- Update Status Modal -->
+                    <div class="modal fade" id="updateStatusModal<%= request._id %>" tabindex="-1" role="dialog" aria-labelledby="updateStatusModalLabel<%= request._id %>" aria-hidden="true">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="updateStatusModalLabel<%= request._id %>">Update Service Request Status</h5>
+                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-body">
+                            <form action="/admin/services/<%= request._id %>/status?_method=PUT" method="POST">
+                              <div class="form-group">
+                                <label for="status<%= request._id %>">Status</label>
+                                <select id="status<%= request._id %>" name="status" class="form-control" required>
+                                  <option value="pending" <%= request.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                  <option value="in-progress" <%= request.status === 'in-progress' ? 'selected' : '' %>>In Progress</option>
+                                  <option value="completed" <%= request.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                                  <option value="cancelled" <%= request.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                                </select>
+                              </div>
+                              
+                              <div class="form-group">
+                                <label for="staffNotes<%= request._id %>">Staff Notes</label>
+                                <textarea id="staffNotes<%= request._id %>" name="staffNotes" class="form-control" rows="3"><%= request.staffNotes || '' %></textarea>
+                              </div>
+                              
+                              <div class="form-group mb-0">
+                                <button type="submit" class="btn btn-primary">Update Status</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% } %>
+  
+  <a href="/admin/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+<%- include('../partials/footer') %>

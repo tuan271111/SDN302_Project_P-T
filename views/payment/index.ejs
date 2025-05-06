@@ -1,0 +1,98 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 mx-auto">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Complete Your Payment</h4>
+        </div>
+        <div class="card-body">
+          <div class="booking-summary mb-4">
+            <h5>Booking Summary</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Room:</strong> <%= booking.room.name %> (#<%= booking.room.roomNumber %>)</p>
+                <p><strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %></p>
+                <p><strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %></p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Guests:</strong> <%= booking.guests.adults %> adults, <%= booking.guests.children %> children</p>
+                <p><strong>Duration:</strong> <%= Math.ceil((new Date(booking.checkOut) - new Date(booking.checkIn)) / (1000 * 60 * 60 * 24)) %> nights</p>
+                <p><strong>Total Amount:</strong> $<%= booking.totalPrice %></p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="payment-options">
+            <h5>Select Payment Method</h5>
+            
+            <div class="payment-method-tabs">
+              <ul class="nav nav-tabs" id="paymentTabs" role="tablist">
+                <li class="nav-item">
+                  <a class="nav-link active" id="vnpay-tab" data-toggle="tab" href="#vnpay" role="tab">VNPay (Demo)</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" id="credit-tab" data-toggle="tab" href="#credit" role="tab">Credit Card</a>
+                </li>
+              </ul>
+              
+              <div class="tab-content mt-3" id="paymentTabContent">
+                <div class="tab-pane fade show active" id="vnpay" role="tabpanel">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="text-center mb-3">
+                        <img src="/img/vnpay-logo.png" alt="VNPay" style="height: 60px;">
+                      </div>
+                      <p class="text-center">Pay securely using VNPay (Demo Mode)</p>
+                      <form action="/payment/process-vnpay" method="POST">
+                        <input type="hidden" name="bookingId" value="<%= booking._id %>">
+                        <button type="submit" class="btn btn-success btn-block">
+                          <i class="fas fa-credit-card mr-2"></i> Pay with VNPay
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="tab-pane fade" id="credit" role="tabpanel">
+                  <div class="card">
+                    <div class="card-body">
+                      <p class="text-center">This is a demo. Credit card payments are not actually processed.</p>
+                      <div class="form-group">
+                        <label>Card Number</label>
+                        <input type="text" class="form-control" placeholder="1234 5678 9012 3456">
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Expiry Date</label>
+                            <input type="text" class="form-control" placeholder="MM/YY">
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>CVV</label>
+                            <input type="text" class="form-control" placeholder="123">
+                          </div>
+                        </div>
+                      </div>
+                      <button type="button" class="btn btn-primary btn-block" disabled>
+                        Pay $<%= booking.totalPrice %> (Disabled in Demo)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <a href="/bookings/my-bookings" class="btn btn-secondary">Back to My Bookings</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

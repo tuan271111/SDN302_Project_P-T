@@ -1,0 +1,51 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <h1 class="mb-4">Booking Details</h1>
+  
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Booking Information</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <h4><%= booking.room.name %> (Room #<%= booking.room.roomNumber %>)</h4>
+          <p><strong>Booking ID:</strong> <%= booking._id %></p>
+          <p><strong>Status:</strong> 
+            <span class="badge badge-<%= booking.status === 'confirmed' ? 'success' : booking.status === 'cancelled' ? 'danger' : 'warning' %>">
+              <%= booking.status %>
+            </span>
+          </p>
+          <p><strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %></p>
+          <p><strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %></p>
+          <p><strong>Nights:</strong> <%= (new Date(booking.checkOut) - new Date(booking.checkIn)) / (1000 * 60 * 60 * 24) %></p>
+          <p><strong>Guests:</strong> <%= booking.guests.adults %> adults, <%= booking.guests.children %> children</p>
+          <p><strong>Total Price:</strong> $<%= booking.totalPrice %></p>
+        </div>
+        <div class="col-md-6">
+          <h4>Payment Information</h4>
+          <p><strong>Payment Method:</strong> <%= booking.paymentMethod.replace('_', ' ') %></p>
+          <p><strong>Payment Status:</strong> 
+            <span class="badge badge-<%= booking.paymentStatus === 'paid' ? 'success' : booking.paymentStatus === 'refunded' ? 'info' : 'warning' %>">
+              <%= booking.paymentStatus %>
+            </span>
+          </p>
+          <% if (booking.specialRequests) { %>
+            <h4 class="mt-4">Special Requests</h4>
+            <p><%= booking.specialRequests %></p>
+          <% } %>
+        </div>
+      </div>
+      
+      <div class="mt-4">
+        <a href="/users/my-bookings" class="btn btn-secondary">Back to My Bookings</a>
+        <% if (booking.status === 'confirmed' && new Date(booking.checkIn) > new Date()) { %>
+          <a href="/bookings/<%= booking._id %>/cancel" class="btn btn-danger ml-2">Cancel Booking</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

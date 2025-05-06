@@ -1,0 +1,26 @@
+<!-- Add this section to your booking detail page -->
+<div class="card mb-4">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0">Payment Information</h5>
+  </div>
+  <div class="card-body">
+    <% if (booking.isPaid) { %>
+      <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i> Paid on <%= new Date(booking.paidAt).toLocaleString() %>
+      </div>
+      <p><strong>Payment Method:</strong> <%= booking.paymentMethod %></p>
+      <% if (booking.paymentResult) { %>
+        <p><strong>Transaction ID:</strong> <%= booking.paymentResult.id %></p>
+      <% } %>
+    <% } else { %>
+      <div class="alert alert-warning">
+        <i class="fas fa-exclamation-circle"></i> Not Paid
+      </div>
+      <p class="mb-3">Please complete your payment to confirm your booking.</p>
+      <a href="/payment/create/<%= booking._id %>" class="btn btn-primary">
+        <img src="https://sandbox.vnpayment.vn/paymentv2/images/brands/logo.svg" alt="VNPay" height="24" class="me-2">
+        Pay with VNPay (Demo)
+      </a>
+    <% } %>
+  </div>
+</div>

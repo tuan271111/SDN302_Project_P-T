@@ -1,0 +1,386 @@
+<%- include('../partials/header') %>
+<%- include('../partials/admin-sidebar') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Service Request Details</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <a href="/admin/service-requests" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-arrow-left"></i> Back to Service Requests
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-8">
+          <!-- Request Information Card -->
+          <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">Request Information</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <strong>Request ID:</strong> 
+                  <span class="text-muted"><%= serviceRequest._id %></span>
+                </div>
+                <div class="col-md-6">
+                  <strong>Service Type:</strong> 
+                  <span class="badge bg-info"><%= serviceRequest.type.replace('-', ' ').toUpperCase() %></span>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <strong>Room Number:</strong> 
+                  <span class="text-muted"><%= serviceRequest.room.roomNumber %></span>
+                </div>
+                <div class="col-md-6">
+                  <strong>Guest:</strong> 
+                  <span class="text-muted"><%= serviceRequest.user.name %></span>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <strong>Requested Time:</strong> 
+                  <span class="text-muted"><%= serviceRequest.requestDetails.time || 'ASAP' %></span>
+                </div>
+                <div class="col-md-6">
+                  <strong>Guest Email:</strong> 
+                  <span class="text-muted"><%= serviceRequest.user.email %></span>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <strong>Created:</strong> 
+                  <span class="text-muted"><%= moment(serviceRequest.createdAt).format('MMMM D, YYYY h:mm A') %></span>
+                </div>
+                <div class="col-md-6">
+                  <strong>Last Updated:</strong> 
+                  <span class="text-muted"><%= moment(serviceRequest.updatedAt).format('MMMM D, YYYY h:mm A') %></span>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <strong>Status:</strong> 
+                  <% if (serviceRequest.status === 'pending') { %>
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  <% } else if (serviceRequest.status === 'in-progress') { %>
+                    <span class="badge bg-info">In Progress</span>
+                  <% } else if (serviceRequest.status === 'completed') { %>
+                    <span class="badge bg-success">Completed</span>
+                  <% } else if (serviceRequest.status === 'cancelled') { %>
+                    <span class="badge bg-danger">Cancelled</span>
+                  <% } %>
+                </div>
+                <% if (serviceRequest.status === 'completed' && serviceRequest.completedAt) { %>
+                  <div class="col-md-6">
+                    <strong>Completed At:</strong> 
+                    <span class="text-muted"><%= moment(serviceRequest.completedAt).format('MMMM D, YYYY h:mm A') %></span>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Service Details Card -->
+          <% if (serviceRequest.type === 'room-service') { %>
+            <div class="card mb-4">
+              <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Room Service Order Details</h5>
+              </div>
+              <div class="card-body">
+                <% if (serviceRequest.requestDetails.specialInstructions) { %>
+                  <div class="mb-3">
+                    <strong>Special Instructions:</strong>
+                    <p class="mt-2 p-3 bg-light rounded"><%= serviceRequest.requestDetails.specialInstructions %></p>
+                  </div>
+                <% } %>
+                
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% let orderTotal = 0; %>
+                      <% if (serviceRequest.requestDetails.items && serviceRequest.requestDetails.items.length > 0) { %>
+                        <% serviceRequest.requestDetails.items.forEach(item => { %>
+                          <% const price = Number(item.price || 0); %>
+                          <% const itemTotal = item.quantity * price; %>
+                          <% orderTotal += itemTotal; %>
+                          <tr>
+                            <td><%= item.name %></td>
+                            <td><%= item.quantity %></td>
+                            <td>$<%= price.toFixed(2) %></td>
+                            <td>$<%= itemTotal.toFixed(2) %></td>
+                          </tr>
+                        <% }); %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="4" class="text-center">No items in this order</td>
+                        </tr>
+                      <% } %>
+                    </tbody>
+                    <tfoot>
+                      <tr class="table-dark">
+                        <th colspan="3" class="text-end">Order Total:</th>
+                        <th>$<%= orderTotal.toFixed(2) %></th>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          <% } %>
+          
+          <% if (serviceRequest.type === 'laundry') { %>
+            <div class="card mb-4">
+              <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Laundry Service Details</h5>
+              </div>
+              <div class="card-body">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <strong>Service Type:</strong> 
+                    <span class="text-muted"><%= serviceRequest.requestDetails.serviceType || 'Standard' %></span>
+                  </div>
+                  <div class="col-md-6">
+                    <strong>Pickup Time:</strong> 
+                    <span class="text-muted"><%= serviceRequest.requestDetails.pickupTime || 'As soon as possible' %></span>
+                  </div>
+                </div>
+                
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Item Type</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Special Instructions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% let laundryTotal = 0; %>
+                      <% if (serviceRequest.requestDetails.items && serviceRequest.requestDetails.items.length > 0) { %>
+                        <% serviceRequest.requestDetails.items.forEach(item => { %>
+                          <% const itemTotal = item.quantity * (item.price || 0); %>
+                          <% laundryTotal += itemTotal; %>
+                          <tr>
+                            <td><%= item.type %></td>
+                            <td><%= item.quantity %></td>
+                            <td>$<%= (item.price || 0).toFixed(2) %></td>
+                            <td>$<%= itemTotal.toFixed(2) %></td>
+                            <td><%= item.instructions || 'None' %></td>
+                          </tr>
+                        <% }); %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="5" class="text-center">No items specified</td>
+                        </tr>
+                      <% } %>
+                    </tbody>
+                    <tfoot>
+                      <tr class="table-dark">
+                        <th colspan="3" class="text-end">Laundry Total:</th>
+                        <th>$<%= laundryTotal.toFixed(2) %></th>
+                        <th></th>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          <% } %>
+          
+          <% if (serviceRequest.type === 'cleaning') { %>
+            <div class="card mb-4">
+              <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Cleaning Service Details</h5>
+              </div>
+              <div class="card-body">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <strong>Service Type:</strong> 
+                    <span class="text-muted"><%= serviceRequest.requestDetails.cleaningType || 'Standard Cleaning' %></span>
+                  </div>
+                  <div class="col-md-6">
+                    <strong>Requested Time:</strong> 
+                    <span class="text-muted"><%= serviceRequest.requestDetails.time || 'As soon as possible' %></span>
+                  </div>
+                </div>
+                
+                <% if (serviceRequest.requestDetails.specialRequests) { %>
+                  <div class="mb-3">
+                    <strong>Special Requests:</strong>
+                    <p class="mt-2 p-3 bg-light rounded"><%= serviceRequest.requestDetails.specialRequests %></p>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+          
+          <% if (serviceRequest.type === 'maintenance') { %>
+            <div class="card mb-4">
+              <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Maintenance Request Details</h5>
+              </div>
+              <div class="card-body">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <strong>Issue Type:</strong> 
+                    <span class="text-muted"><%= serviceRequest.requestDetails.issueType || 'General Maintenance' %></span>
+                  </div>
+                  <div class="col-md-6">
+                    <strong>Urgency:</strong> 
+                    <span class="text-muted"><%= serviceRequest.requestDetails.urgency || 'Normal' %></span>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <strong>Issue Description:</strong>
+                  <p class="mt-2 p-3 bg-light rounded"><%= serviceRequest.requestDetails.description || 'No description provided' %></p>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        </div>
+        
+        <!-- Right column for status updates and notes -->
+        <div class="col-md-4">
+          <!-- Update Status Card -->
+          <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">Update Status</h5>
+            </div>
+            <div class="card-body">
+              <form action="/admin/service-requests/<%= serviceRequest._id %>/update-status" method="POST">
+                <div class="form-group">
+                  <label for="status"><strong>Update Status:</strong></label>
+                  <select name="status" id="status" class="form-control">
+                    <option value="pending" <%= serviceRequest.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                    <option value="in-progress" <%= serviceRequest.status === 'in-progress' ? 'selected' : '' %>>In Progress</option>
+                    <option value="completed" <%= serviceRequest.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                    <option value="cancelled" <%= serviceRequest.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                  </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary mt-3 w-100">Update Status</button>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Add Staff Note Card -->
+          <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+              <h5 class="mb-0">Add Staff Note</h5>
+            </div>
+            <div class="card-body">
+              <form action="/admin/service-requests/<%= serviceRequest._id %>/add-note" method="POST">
+                <div class="form-group">
+                  <label for="staffNote"><strong>Note:</strong></label>
+                  <textarea name="staffNote" id="staffNote" class="form-control" rows="3" placeholder="Add a note about this service request..." required></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-info mt-3 w-100 text-white">Add Note</button>
+              </form>
+            </div>
+          </div>
+          
+          <!-- Staff Notes Card -->
+          <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+              <h5 class="mb-0">Staff Notes</h5>
+            </div>
+            <div class="card-body">
+              <% if (serviceRequest.staffNotes && serviceRequest.staffNotes.length > 0) { %>
+                <div class="timeline">
+                  <% serviceRequest.staffNotes.forEach((note, index) => { %>
+                    <div class="timeline-item">
+                      <div class="timeline-item-content">
+                        <div class="d-flex justify-content-between">
+                          <strong><%= note.staffName %></strong>
+                          <small class="text-muted"><%= moment(note.createdAt).format('MMM D, h:mm A') %></small>
+                        </div>
+                        <p class="mt-2 mb-0"><%= note.text %></p>
+                        <span class="circle"></span>
+                      </div>
+                    </div>
+                  <% }); %>
+                </div>
+              <% } else { %>
+                <div class="alert alert-info mb-0">
+                  <i class="fas fa-info-circle me-2"></i> No staff notes have been added yet.
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<style>
+  /* Timeline styles */
+  .timeline {
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+  
+  .timeline-item {
+    position: relative;
+    margin-left: 20px;
+    padding-bottom: 15px;
+  }
+  
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+  
+  .timeline-item-content {
+    position: relative;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #6c757d;
+  }
+  
+  .circle {
+    background-color: #6c757d;
+    border: 3px solid white;
+    border-radius: 50%;
+    position: absolute;
+    top: 15px;
+    left: -29px;
+    width: 16px;
+    height: 16px;
+  }
+  
+  .timeline::before {
+    content: '';
+    background-color: #e9ecef;
+    width: 2px;
+    height: 100%;
+    position: absolute;
+    left: 10px;
+    top: 0;
+  }
+</style>
+
+<%- include('../partials/footer') %>

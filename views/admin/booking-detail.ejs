@@ -1,0 +1,124 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid mt-4">
+  <div class="row">
+    <%- include('./partials/sidebar') %>
+    
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2"><i class="fas fa-calendar-check me-2"></i> Booking Details</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <a href="/admin/bookings" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Bookings
+          </a>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">Booking Information</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <p><strong>Booking ID:</strong> <%= booking._id %></p>
+                  <p><strong>Status:</strong> 
+                    <span class="badge rounded-pill bg-<%= 
+                      booking.status === 'confirmed' ? 'success' : 
+                      booking.status === 'pending' ? 'warning' : 
+                      booking.status === 'cancelled' ? 'danger' : 'secondary' 
+                    %>">
+                      <%= booking.status.toUpperCase() %>
+                    </span>
+                  </p>
+                  <p><strong>Created:</strong> <%= new Date(booking.createdAt).toLocaleString() %></p>
+                </div>
+                <div class="col-md-6">
+                  <p><strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %></p>
+                  <p><strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %></p>
+                  <p><strong>Nights:</strong> <%= Math.ceil((new Date(booking.checkOut) - new Date(booking.checkIn)) / (1000 * 60 * 60 * 24)) %></p>
+                </div>
+              </div>
+              
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <p><strong>Guests:</strong> <%= booking.guests.adults %> Adults, <%= booking.guests.children %> Children</p>
+                  <p><strong>Total Price:</strong> $<%= booking.totalPrice.toFixed(2) %></p>
+                </div>
+                <div class="col-md-6">
+                  <p><strong>Payment Method:</strong> <%= booking.paymentMethod.replace('_', ' ').toUpperCase() %></p>
+                  <p><strong>Payment Status:</strong> 
+                    <span class="badge rounded-pill bg-<%= booking.isPaid ? 'success' : 'warning' %>">
+                      <%= booking.isPaid ? 'PAID' : 'PENDING' %>
+                    </span>
+                  </p>
+                  <% if (booking.isPaid && booking.paidAt) { %>
+                    <p><strong>Paid On:</strong> <%= new Date(booking.paidAt).toLocaleString() %></p>
+                  <% } %>
+                </div>
+              </div>
+              
+              <% if (booking.specialRequests) { %>
+                <div class="mb-3">
+                  <h6>Special Requests:</h6>
+                  <p class="border p-2 rounded bg-light"><%= booking.specialRequests %></p>
+                </div>
+              <% } %>
+              
+              <form action="/admin/bookings/<%= booking._id %>/update-status" method="POST" class="mt-4">
+                <div class="row align-items-end">
+                  <div class="col-md-6">
+                    <label for="status" class="form-label">Update Booking Status</label>
+                    <select name="status" id="status" class="form-select">
+                      <option value="pending" <%= booking.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                      <option value="confirmed" <%= booking.status === 'confirmed' ? 'selected' : '' %>>Confirmed</option>
+                      <option value="cancelled" <%= booking.status === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                      <option value="completed" <%= booking.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white">
+              <h5 class="mb-0">Guest Information</h5>
+            </div>
+            <div class="card-body">
+              <p><strong>Name:</strong> <%= booking.user.name %></p>
+              <p><strong>Email:</strong> <%= booking.user.email %></p>
+              <a href="/admin/users/<%= booking.user._id %>" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-user"></i> View Guest Profile
+              </a>
+            </div>
+          </div>
+          
+          <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0">Room Information</h5>
+            </div>
+            <div class="card-body">
+              <p><strong>Room:</strong> <%= booking.room.name %></p>
+              <p><strong>Room Number:</strong> <%= booking.room.roomNumber %></p>
+              <p><strong>Type:</strong> <%= booking.room.type %></p>
+              <p><strong>Price per Night:</strong> $<%= booking.room.price.toFixed(2) %></p>
+              <a href="/admin/rooms/form/<%= booking.room._id %>" class="btn btn-outline-success btn-sm">
+                <i class="fas fa-bed"></i> View Room Details
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

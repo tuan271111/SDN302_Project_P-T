@@ -1,0 +1,204 @@
+<%- include('../partials/header') %>
+
+<div class="container-fluid mt-4">
+  <div class="row">
+    <%- include('./partials/sidebar') %>
+    
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">User Details</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <a href="/admin/users" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Users
+          </a>
+        </div>
+      </div>
+      
+      <div class="row mb-4">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">User Information</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <strong>Name:</strong> <%= user.name %>
+              </div>
+              <div class="mb-3">
+                <strong>Email:</strong> <%= user.email %>
+              </div>
+              <div class="mb-3">
+                <strong>Role:</strong> 
+                <span class="badge bg-<%= user.role === 'admin' ? 'danger' : 'primary' %>">
+                  <%= user.role %>
+                </span>
+              </div>
+              <div class="mb-3">
+                <strong>Joined:</strong> <%= new Date(user.createdAt).toLocaleString() %>
+              </div>
+              <div class="mb-3">
+                <strong>Last Updated:</strong> <%= new Date(user.updatedAt).toLocaleString() %>
+              </div>
+              
+              <% if (user.role !== 'admin') { %>
+                <a href="/admin/users/<%= user._id %>/make-admin" class="btn btn-warning">
+                  <i class="fas fa-user-shield"></i> Make Admin
+                </a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0">Activity Summary</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <strong>Total Bookings:</strong> <%= bookings.length %>
+              </div>
+              <div class="mb-3">
+                <strong>Total Service Requests:</strong> <%= serviceRequests.length %>
+              </div>
+              <div class="mb-3">
+                <strong>Last Booking:</strong> 
+                <% if (bookings.length > 0) { %>
+                  <%= new Date(bookings[0].createdAt).toLocaleString() %>
+                <% } else { %>
+                  No bookings yet
+                <% } %>
+              </div>
+              <div class="mb-3">
+                <strong>Last Service Request:</strong>
+                <% if (serviceRequests.length > 0) { %>
+                  <%= new Date(serviceRequests[0].createdAt).toLocaleString() %>
+                <% } else { %>
+                  No service requests yet
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- User's Bookings -->
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Bookings</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>Booking ID</th>
+                  <th>Room</th>
+                  <th>Check-in</th>
+                  <th>Check-out</th>
+                  <th>Status</th>
+                  <th>Total</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (bookings.length === 0) { %>
+                  <tr>
+                    <td colspan="7" class="text-center">No bookings found</td>
+                  </tr>
+                <% } else { %>
+                  <% bookings.forEach(booking => { %>
+                    <tr>
+                      <td><%= booking._id.toString().substring(0, 8) %>...</td>
+                      <td><%= booking.room.roomNumber %></td>
+                      <td><%= new Date(booking.checkIn).toLocaleDateString() %></td>
+                      <td><%= new Date(booking.checkOut).toLocaleDateString() %></td>
+                      <td>
+                        <span class="badge bg-<%= 
+                          booking.status === 'pending' ? 'warning' : 
+                          booking.status === 'confirmed' ? 'primary' : 
+                          booking.status === 'checked-in' ? 'success' : 
+                          booking.status === 'checked-out' ? 'secondary' : 
+                          'danger' 
+                        %>">
+                          <%= booking.status %>
+                        </span>
+                      </td>
+                      <td>$<%= booking.totalPrice.toFixed(2) %></td>
+                      <td>
+                        <a href="/admin/bookings/<%= booking._id %>" class="btn btn-sm btn-primary">View</a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- User's Service Requests -->
+      <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+          <h5 class="mb-0">Service Requests</h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Type</th>
+                  <th>Room</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (serviceRequests.length === 0) { %>
+                  <tr>
+                    <td colspan="6" class="text-center">No service requests found</td>
+                  </tr>
+                <% } else { %>
+                  <% serviceRequests.forEach(request => { %>
+                    <tr>
+                      <td><%= request._id.toString().substring(0, 8) %>...</td>
+                      <td>
+                        <span class="badge bg-<%= 
+                          request.type === 'cleaning' ? 'success' : 
+                          request.type === 'room-service' ? 'primary' : 
+                          request.type === 'laundry' ? 'info' : 
+                          'warning' 
+                        %>">
+                          <%= request.type.replace('-', ' ') %>
+                        </span>
+                      </td>
+                      <td><%= request.room.roomNumber %></td>
+                      <td>
+                        <span class="badge bg-<%= 
+                          request.status === 'pending' ? 'warning' : 
+                          request.status === 'in-progress' ? 'primary' : 
+                          request.status === 'completed' ? 'success' : 
+                          'danger' 
+                        %>">
+                          <%= request.status %>
+                        </span>
+                      </td>
+                      <td><%= new Date(request.createdAt).toLocaleString() %></td>
+                      <td>
+                        <a href="/admin/service-requests/<%= request._id %>" class="btn btn-sm btn-primary">View</a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

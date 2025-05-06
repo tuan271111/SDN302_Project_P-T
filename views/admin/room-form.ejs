@@ -1,0 +1,155 @@
+<%- include('../partials/header') %>
+<%- include('../partials/admin-sidebar') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2"><%= room._id ? 'Edit Room' : 'Add New Room' %></h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <a href="/admin/rooms" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-arrow-left"></i> Back to Rooms
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <form action="<%= room._id ? `/admin/rooms/update/${room._id}` : '/admin/rooms/add' %>" method="POST">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="name" class="form-label">Room Name</label>
+                <input type="text" class="form-control" id="name" name="name" value="<%= room.name || '' %>" required>
+              </div>
+              <div class="col-md-6">
+                <label for="roomNumber" class="form-label">Room Number</label>
+                <input type="text" class="form-control" id="roomNumber" name="roomNumber" value="<%= room.roomNumber || '' %>" required>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label for="type" class="form-label">Room Type</label>
+                <select class="form-select" id="type" name="type" required>
+                  <option value="" disabled <%= !room.type ? 'selected' : '' %>>Select Room Type</option>
+                  <option value="standard" <%= room.type === 'standard' ? 'selected' : '' %>>Standard</option>
+                  <option value="deluxe" <%= room.type === 'deluxe' ? 'selected' : '' %>>Deluxe</option>
+                  <option value="suite" <%= room.type === 'suite' ? 'selected' : '' %>>Suite</option>
+                  <option value="executive" <%= room.type === 'executive' ? 'selected' : '' %>>Executive</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label for="price" class="form-label">Price per Night ($)</label>
+                <input type="number" class="form-control" id="price" name="price" min="0" step="0.01" value="<%= room.price || '' %>" required>
+              </div>
+              <div class="col-md-4">
+                <label for="capacity" class="form-label">Capacity</label>
+                <input type="number" class="form-control" id="capacity" name="capacity" min="1" value="<%= room.capacity || '2' %>" required>
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label for="size" class="form-label">Room Size (sq ft)</label>
+                <input type="number" class="form-control" id="size" name="size" min="1" value="<%= room.size || '' %>" required>
+              </div>
+              <div class="col-md-4">
+                <label for="floor" class="form-label">Floor Number</label>
+                <input type="number" class="form-control" id="floor" name="floor" min="1" value="<%= room.floor || '' %>" required>
+              </div>
+              <div class="col-md-4">
+                <label for="maxOccupancy" class="form-label">Max Occupancy</label>
+                <input type="number" class="form-control" id="maxOccupancy" name="maxOccupancy" min="1" value="<%= room.maxOccupancy || '2' %>" required>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="4" required><%= room.description || '' %></textarea>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Amenities</label>
+              <div class="row">
+                <% const amenities = room.amenities || []; %>
+                <div class="col-md-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wifi" name="amenities" value="WiFi" <%= amenities.includes('WiFi') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="wifi">WiFi</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="tv" name="amenities" value="TV" <%= amenities.includes('TV') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="tv">TV</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="ac" name="amenities" value="Air Conditioning" <%= amenities.includes('Air Conditioning') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="ac">Air Conditioning</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="minibar" name="amenities" value="Mini Bar" <%= amenities.includes('Mini Bar') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="minibar">Mini Bar</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="safe" name="amenities" value="Safe" <%= amenities.includes('Safe') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="safe">Safe</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="balcony" name="amenities" value="Balcony" <%= amenities.includes('Balcony') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="balcony">Balcony</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="bathtub" name="amenities" value="Bathtub" <%= amenities.includes('Bathtub') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="bathtub">Bathtub</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="roomService" name="amenities" value="Room Service" <%= amenities.includes('Room Service') ? 'checked' : '' %>>
+                    <label class="form-check-label" for="roomService">Room Service</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="images" class="form-label">Image URLs (one per line)</label>
+              <textarea class="form-control" id="images" name="images" rows="3" placeholder="https://example.com/image1.jpg"><%= (room.images || []).join('\n') %></textarea>
+              <div class="form-text">Enter one image URL per line. First image will be used as the main image.</div>
+            </div>
+            
+            <% if (room._id) { %>
+              <div class="mb-3">
+                <label class="form-label">Availability</label>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="isAvailable" id="available" value="true" <%= room.isAvailable !== false ? 'checked' : '' %>>
+                  <label class="form-check-label" for="available">
+                    Available
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="isAvailable" id="unavailable" value="false" <%= room.isAvailable === false ? 'checked' : '' %>>
+                  <label class="form-check-label" for="unavailable">
+                    Unavailable
+                  </label>
+                </div>
+              </div>
+            <% } %>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <a href="/admin/rooms" class="btn btn-secondary me-md-2">Cancel</a>
+              <button type="submit" class="btn btn-primary"><%= room._id ? 'Update Room' : 'Add Room' %></button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

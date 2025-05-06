@@ -1,0 +1,60 @@
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+  <div class="position-sticky pt-3">
+    <ul class="nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/dashboard' ? 'active' : '' %>" href="/admin/dashboard">
+          <i class="fas fa-tachometer-alt me-2"></i>
+          Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/rooms' ? 'active' : '' %>" href="/admin/rooms">
+          <i class="fas fa-bed me-2"></i>
+          Rooms
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/bookings' ? 'active' : '' %>" href="/admin/bookings">
+          <i class="fas fa-calendar-check me-2"></i>
+          Bookings
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/service-requests' ? 'active' : '' %>" href="/admin/service-requests">
+          <i class="fas fa-concierge-bell me-2"></i>
+          Service Requests
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/users' ? 'active' : '' %>" href="/admin/users">
+          <i class="fas fa-users me-2"></i>
+          Users
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= path === '/admin/profile' ? 'active' : '' %>" href="/admin/profile">
+          <i class="fas fa-user-cog me-2"></i>
+          My Profile
+        </a>
+      </li>
+    </ul>
+
+    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+      <span>Quick Actions</span>
+    </h6>
+    <ul class="nav flex-column mb-2">
+      <li class="nav-item">
+        <a class="nav-link" href="/admin/rooms/form">
+          <i class="fas fa-plus-circle me-2"></i>
+          Add New Room
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/logout">
+          <i class="fas fa-sign-out-alt me-2"></i>
+          Logout
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

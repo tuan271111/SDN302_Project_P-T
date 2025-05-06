@@ -1,0 +1,76 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white text-center">
+          <img src="https://sandbox.vnpayment.vn/paymentv2/images/brands/logo.svg" alt="VNPay" height="40" class="my-2">
+          <h4 class="mb-0">Payment Gateway (Demo)</h4>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> This is a demo payment page. No actual payment will be processed.
+          </div>
+          
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5>Payment Details</h5>
+              <p><strong>Order ID:</strong> <%= ref %></p>
+              <p><strong>Amount:</strong> <%= Number(amount).toLocaleString('vi-VN') %> VND</p>
+              <p><strong>Description:</strong> Payment for booking #<%= booking._id.toString().substring(0, 8) %></p>
+            </div>
+            <div class="col-md-6">
+              <h5>Booking Information</h5>
+              <p><strong>Room:</strong> <%= booking.room.name %> (#<%= booking.room.roomNumber %>)</p>
+              <p><strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %></p>
+              <p><strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %></p>
+            </div>
+          </div>
+          
+          <hr>
+          
+          <div class="row mb-4">
+            <div class="col-md-12">
+              <h5>Select Payment Method</h5>
+              <div class="d-flex flex-wrap gap-2 mt-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="paymentMethod" id="vnpayQR" checked>
+                  <label class="form-check-label" for="vnpayQR">
+                    <img src="https://sandbox.vnpayment.vn/paymentv2/images/icons/scan_qr.svg" alt="QR" height="24"> QR Code
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="paymentMethod" id="vnpayATM">
+                  <label class="form-check-label" for="vnpayATM">
+                    <img src="https://sandbox.vnpayment.vn/paymentv2/images/icons/atm_card.svg" alt="ATM" height="24"> ATM Card
+                  </label>
+                </div>
+                <div class="form-check ms-3">
+                  <input class="form-check-input" type="radio" name="paymentMethod" id="vnpayCredit">
+                  <label class="form-check-label" for="vnpayCredit">
+                    <img src="https://sandbox.vnpayment.vn/paymentv2/images/icons/credit_card.svg" alt="Credit" height="24"> Credit Card
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-center mt-4">
+            <a href="<%= returnUrl %>&status=success" class="btn btn-success btn-lg me-2">
+              <i class="fas fa-check-circle"></i> Complete Payment
+            </a>
+            <a href="<%= returnUrl %>&status=cancelled" class="btn btn-secondary btn-lg">
+              <i class="fas fa-times-circle"></i> Cancel
+            </a>
+          </div>
+        </div>
+        <div class="card-footer text-center">
+          <small class="text-muted">Secure payment powered by VNPay (Demo)</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/footer') %>

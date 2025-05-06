@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Luxury Hotel</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">Luxury Hotel</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/rooms">Rooms</a>
+          </li>
+          <% if (locals.user) { %>
+            <% if (locals.user.role === 'admin') { %>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin/dashboard">Dashboard</a>
+              </li>
+            <% } else { %>
+              <li class="nav-item">
+                <a class="nav-link" href="/users/my-bookings">My Bookings</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/users/my-room">My Room</a>
+              </li>
+            <% } %>
+          <% } %>
+        </ul>
+        <ul class="navbar-nav">
+          <% if (locals.user) { %>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user-circle"></i> <%= locals.user.name %>
+              </a>
+              <!-- Add this to the user dropdown menu in the header.ejs file -->
+              <% if (user) { %>
+                <!-- Existing dropdown items -->
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <% if (user.role === 'admin') { %>
+                    <a class="dropdown-item" href="/admin/profile"><i class="fas fa-user-circle"></i> My Profile</a>
+                  <% } else { %>
+                    <a class="dropdown-item" href="/users/profile"><i class="fas fa-user-circle"></i> My Profile</a>
+                  <% } %>
+                  <a class="dropdown-item" href="/users/my-bookings"><i class="fas fa-calendar-check"></i> My Bookings</a>
+                  <a class="dropdown-item" href="/users/my-room"><i class="fas fa-bed"></i> My Room</a>
+                  <a class="dropdown-item" href="/services/history"><i class="fas fa-history"></i> Service History</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="/auth/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+              <% } %>
+            </li>
+          <% } else { %>
+            <li class="nav-item">
+              <a class="nav-link" href="/auth/login"><i class="fas fa-sign-in-alt"></i> Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/auth/register"><i class="fas fa-user-plus"></i> Register</a>
+            </li>
+          <% } %>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <%- include('./messages') %>

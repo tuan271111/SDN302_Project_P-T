@@ -1,0 +1,393 @@
+<%- include('../partials/header') %>
+
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>My Bookings</h1>
+    <a href="/rooms" class="btn btn-primary">Book New Room</a>
+  </div>
+  
+  <% if (bookings.length === 0) { %>
+    <div class="alert alert-info">
+      <h4 class="alert-heading">No bookings found!</h4>
+      <p>You haven't made any bookings yet. Explore our rooms and make your first reservation.</p>
+      <hr>
+      <a href="/rooms" class="btn btn-info">View Rooms</a>
+    </div>
+  <% } else { %>
+    <% 
+      // Group bookings by status
+      const upcoming = bookings.filter(b => ['pending', 'confirmed'].includes(b.status) && new Date(b.checkIn) > new Date());
+      const active = bookings.filter(b => b.status === 'confirmed' && new Date(b.checkIn) <= new Date() && new Date(b.checkOut) >= new Date());
+      const past = bookings.filter(b => b.status === 'completed' || new Date(b.checkOut) < new Date());
+      const cancelled = bookings.filter(b => b.status === 'cancelled');
+    %>
+    
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs mb-4" id="bookingTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="upcoming-tab" data-toggle="tab" href="#upcoming" role="tab">
+          Upcoming <span class="badge badge-primary"><%= upcoming.length %></span>
+        </a>
+      </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" id="active-tab" data-toggle="tab" href="#active" role="tab">
+          Active <span class="badge badge-success"><%= active.length %></span>
+        </a>
+      </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" id="past-tab" data-toggle="tab" href="#past" role="tab">
+          Past <span class="badge badge-secondary"><%= past.length %></span>
+        </a>
+      </li>
+      <li class="nav-item" role="presentation">
+        <a class="nav-link" id="cancelled-tab" data-toggle="tab" href="#cancelled" role="tab">
+          Cancelled <span class="badge badge-danger"><%= cancelled.length %></span>
+        </a>
+      </li>
+    </ul>
+    
+    <!-- Tab content -->
+    <div class="tab-content" id="bookingTabsContent">
+      <!-- Upcoming Bookings -->
+      <div class="tab-pane fade show active" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
+        <% if (upcoming.length === 0) { %>
+          <div class="alert alert-info">You don't have any upcoming bookings.</div>
+        <% } else { %>
+          <% upcoming.forEach(booking => { %>
+            <div class="card mb-3">
+              <div class="card-header booking-header <%= booking.status === 'pending' ? 'booking-pending' : 'booking-confirmed' %>">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">Booking #<%= booking._id.toString().substring(0, 8) %></h5>
+                  <span class="badge status-badge"><%= booking.status.charAt(0).toUpperCase() + booking.status.slice(1) %></span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <% if (booking.room) { %>
+                      <img src="<%= booking.room.images[0] === 'default-room.jpg' ? '/img/default-room.jpg' : booking.room.images[0] %>" class="img-fluid rounded" alt="<%= booking.room.name %>">
+                    <% } else { %>
+                      <div class="alert alert-warning">Room details not available</div>
+                    <% } %>
+                  </div>
+                  <div class="col-md-8">
+                    <% if (booking.room) { %>
+                      <h5><%= booking.room.name %> (Room #<%= booking.room.roomNumber %>)</h5>
+                      <p class="text-muted"><%= booking.room.description.substring(0, 100) %>...</p>
+                    <% } else { %>
+                      <h5>Room Not Available</h5>
+                    <% } %>
+                    
+                    <div class="row mt-3">
+                      <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-calendar-check mr-2"></i> <strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-calendar-times mr-2"></i> <strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-user-friends mr-2"></i> <strong>Guests:</strong> <%= booking.guests.adults %> adults, <%= booking.guests.children %> children
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-money-bill-wave mr-2"></i> <strong>Total Price:</strong> $<%= booking.totalPrice %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-credit-card mr-2"></i> <strong>Payment:</strong> 
+                            <span class="badge <%= booking.paymentStatus === 'paid' ? 'badge-success' : 'badge-warning' %>">
+                              <%= booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1) %>
+                            </span>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-clock mr-2"></i> <strong>Booked on:</strong> <%= new Date(booking.createdAt).toLocaleDateString() %>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <% if (booking.specialRequests) { %>
+                      <div class="mt-3">
+                        <h6>Special Requests:</h6>
+                        <p class="mb-0"><%= booking.specialRequests %></p>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <div class="d-flex justify-content-between align-items-center">
+                  <a href="/rooms/<%= booking.room._id %>" class="btn btn-outline-primary btn-sm">View Room</a>
+                  <form action="/bookings/<%= booking._id %>/cancel?_method=PUT" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this booking?')">
+                    <button type="submit" class="btn btn-danger btn-sm">Cancel Booking</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+      
+      <!-- Active Bookings -->
+      <div class="tab-pane fade" id="active" role="tabpanel" aria-labelledby="active-tab">
+        <% if (active.length === 0) { %>
+          <div class="alert alert-info">You don't have any active bookings.</div>
+        <% } else { %>
+          <% active.forEach(booking => { %>
+            <div class="card mb-3">
+              <div class="card-header booking-header booking-confirmed">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">Booking #<%= booking._id.toString().substring(0, 8) %></h5>
+                  <span class="badge status-badge">Active Stay</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <% if (booking.room) { %>
+                      <img src="<%= booking.room.images[0] === 'default-room.jpg' ? '/img/default-room.jpg' : booking.room.images[0] %>" class="img-fluid rounded" alt="<%= booking.room.name %>">
+                    <% } else { %>
+                      <div class="alert alert-warning">Room details not available</div>
+                    <% } %>
+                  </div>
+                  <div class="col-md-8">
+                    <% if (booking.room) { %>
+                      <h5><%= booking.room.name %> (Room #<%= booking.room.roomNumber %>)</h5>
+                      <p class="text-muted"><%= booking.room.description.substring(0, 100) %>...</p>
+                    <% } else { %>
+                      <h5>Room Not Available</h5>
+                    <% } %>
+                    
+                    <div class="row mt-3">
+                      <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-calendar-check mr-2"></i> <strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-calendar-times mr-2"></i> <strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-user-friends mr-2"></i> <strong>Guests:</strong> <%= booking.guests.adults %> adults, <%= booking.guests.children %> children
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-money-bill-wave mr-2"></i> <strong>Total Price:</strong> $<%= booking.totalPrice %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-credit-card mr-2"></i> <strong>Payment:</strong> 
+                            <span class="badge <%= booking.paymentStatus === 'paid' ? 'badge-success' : 'badge-warning' %>">
+                              <%= booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1) %>
+                            </span>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-clock mr-2"></i> <strong>Booked on:</strong> <%= new Date(booking.createdAt).toLocaleDateString() %>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    <% if (booking.specialRequests) { %>
+                      <div class="mt-3">
+                        <h6>Special Requests:</h6>
+                        <p class="mb-0"><%= booking.specialRequests %></p>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <div class="d-flex justify-content-between align-items-center">
+                  <a href="/rooms/<%= booking.room._id %>" class="btn btn-outline-primary btn-sm">View Room</a>
+                  <div>
+                    <% if (booking.paymentStatus === 'pending') { %>
+                      <a href="/payment/<%= booking._id %>" class="btn btn-success btn-sm mr-2">
+                        <i class="fas fa-credit-card"></i> Pay Now
+                      </a>
+                    <% } %>
+                    <form action="/bookings/<%= booking._id %>/cancel?_method=PUT" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this booking?')">
+                      <button type="submit" class="btn btn-danger btn-sm">Cancel Booking</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+      
+      <!-- Past Bookings -->
+      <div class="tab-pane fade" id="past" role="tabpanel" aria-labelledby="past-tab">
+        <% if (past.length === 0) { %>
+          <div class="alert alert-info">You don't have any past bookings.</div>
+        <% } else { %>
+          <% past.forEach(booking => { %>
+            <div class="card mb-3">
+              <div class="card-header booking-header booking-completed">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">Booking #<%= booking._id.toString().substring(0, 8) %></h5>
+                  <span class="badge status-badge">Completed</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <% if (booking.room) { %>
+                      <img src="<%= booking.room.images[0] === 'default-room.jpg' ? '/img/default-room.jpg' : booking.room.images[0] %>" class="img-fluid rounded" alt="<%= booking.room.name %>">
+                    <% } else { %>
+                      <div class="alert alert-warning">Room details not available</div>
+                    <% } %>
+                  </div>
+                  <div class="col-md-8">
+                    <% if (booking.room) { %>
+                      <h5><%= booking.room.name %> (Room #<%= booking.room.roomNumber %>)</h5>
+                      <p class="text-muted"><%= booking.room.description.substring(0, 100) %>...</p>
+                    <% } else { %>
+                      <h5>Room Not Available</h5>
+                    <% } %>
+                    
+                    <div class="row mt-3">
+                      <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-calendar-check mr-2"></i> <strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-calendar-times mr-2"></i> <strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-user-friends mr-2"></i> <strong>Guests:</strong> <%= booking.guests.adults %> adults, <%= booking.guests.children %> children
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-money-bill-wave mr-2"></i> <strong>Total Price:</strong> $<%= booking.totalPrice %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-credit-card mr-2"></i> <strong>Payment:</strong> 
+                            <span class="badge <%= booking.paymentStatus === 'paid' ? 'badge-success' : 'badge-warning' %>">
+                              <%= booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1) %>
+                            </span>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-clock mr-2"></i> <strong>Booked on:</strong> <%= new Date(booking.createdAt).toLocaleDateString() %>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+      
+      <!-- Cancelled Bookings -->
+      <div class="tab-pane fade" id="cancelled" role="tabpanel" aria-labelledby="cancelled-tab">
+        <% if (cancelled.length === 0) { %>
+          <div class="alert alert-info">You don't have any cancelled bookings.</div>
+        <% } else { %>
+          <% cancelled.forEach(booking => { %>
+            <div class="card mb-3">
+              <div class="card-header booking-header booking-cancelled">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="mb-0">Booking #<%= booking._id.toString().substring(0, 8) %></h5>
+                  <span class="badge status-badge">Cancelled</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <% if (booking.room) { %>
+                      <img src="<%= booking.room.images[0] === 'default-room.jpg' ? '/img/default-room.jpg' : booking.room.images[0] %>" class="img-fluid rounded" alt="<%= booking.room.name %>">
+                    <% } else { %>
+                      <div class="alert alert-warning">Room details not available</div>
+                    <% } %>
+                  </div>
+                  <div class="col-md-8">
+                    <% if (booking.room) { %>
+                      <h5><%= booking.room.name %> (Room #<%= booking.room.roomNumber %>)</h5>
+                      <p class="text-muted"><%= booking.room.description.substring(0, 100) %>...</p>
+                    <% } else { %>
+                      <h5>Room Not Available</h5>
+                    <% } %>
+                    
+                    <div class="row mt-3">
+                      <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-calendar-check mr-2"></i> <strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-calendar-times mr-2"></i> <strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-user-friends mr-2"></i> <strong>Guests:</strong> <%= booking.guests.adults %> adults, <%= booking.guests.children %> children
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="col-md-6">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-money-bill-wave mr-2"></i> <strong>Total Price:</strong> $<%= booking.totalPrice %>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-credit-card mr-2"></i> <strong>Payment:</strong> 
+                            <span class="badge <%= booking.paymentStatus === 'paid' ? 'badge-success' : 'badge-warning' %>">
+                              <%= booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1) %>
+                            </span>
+                          </li>
+                          <li class="list-group-item px-0">
+                            <i class="fas fa-clock mr-2"></i> <strong>Booked on:</strong> <%= new Date(booking.createdAt).toLocaleDateString() %>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Remove this duplicate card-body section -->
+              <!-- <div class="card-body">
+                <h5 class="card-title"><%= booking.room.name %></h5>
+                <p class="card-text">
+                  <strong>Check-in:</strong> <%= new Date(booking.checkIn).toLocaleDateString() %><br>
+                  <strong>Check-out:</strong> <%= new Date(booking.checkOut).toLocaleDateString() %><br>
+                  <strong>Status:</strong> <span class="badge badge-<%= booking.status === 'confirmed' ? 'success' : booking.status === 'cancelled' ? 'danger' : 'warning' %>"><%= booking.status %></span><br>
+                  <strong>Payment:</strong> 
+                  <% if (booking.isPaid) { %>
+                    <span class="badge badge-success">Paid</span>
+                  <% } else { %>
+                    <span class="badge badge-warning">Pending</span>
+                  <% } %>
+                </p>
+                <div class="btn-group">
+                  <a href="/bookings/<%= booking._id %>" class="btn btn-sm btn-info">View Details</a>
+                  <% if (!booking.isPaid) { %>
+                    <a href="/payment/<%= booking._id %>" class="btn btn-sm btn-primary">Pay Now</a>
+                  <% } %>
+                  <% if (booking.status !== 'cancelled' && booking.status !== 'completed') { %>
+                    <form action="/bookings/<%= booking._id %>/cancel?_method=PUT" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to cancel this booking?')">Cancel</button>
+                    </form>
+                  <% } %>
+                </div>
+              </div> -->
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>
